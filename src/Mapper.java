@@ -91,13 +91,10 @@ public class Mapper implements MapWorker {
 	public void initialize() {
 
 		try {
-			readFromDB();
+			//readFromDB();
 			mapper = new ServerSocket(mapper_port);
 			client = mapper.accept();
-			InputStream is = client.getInputStream();
-			InputStreamReader ir = new InputStreamReader(is);
-			BufferedReader br = new BufferedReader(ir);
-			System.out.println(br.readLine());
+			
 		} catch (IOException e) {
 			System.err.println("Could not initialize server");
 		} finally {
