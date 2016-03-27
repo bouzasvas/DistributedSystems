@@ -54,9 +54,10 @@ public class Mapper implements MapWorker {
 
 		try {
 			con = DriverManager.getConnection(url, user, password);
-			pst = con.prepareStatement("select id" + "from checkins where (latitude between "+minY+" and "+maxY+") "
+			pst = con.prepareStatement("select id" + " from checkins where (latitude between "+minY+" and "+maxY+") "
 					+ "and (longitude between "+ minX+ " and "+ maxX+") "
-					+ "and time > STR_TO_DATE('"+datetime+"', '%Y-%m-%d %H:%i:%s')" + "limit 5;");
+					+ "and time > STR_TO_DATE('"+datetime+"', '%Y-%m-%d %H:%i:%s')"
+					+ "limit 5;");
 			rs = pst.executeQuery();
 
 			while (rs.next()) {
@@ -94,7 +95,22 @@ public class Mapper implements MapWorker {
 			//readFromDB();
 			mapper = new ServerSocket(mapper_port);
 			client = mapper.accept();
-			
+			ObjectInputStream in = new ObjectInputStream(client.getInputStream());
+			ObjectOutputStream out = new ObjectOutputStream(client.getOutputStream());
+			try {
+				minX = in.readDouble();
+				maxX = in.readDouble();
+				minY = in.readDouble();
+				maxY = in.readDouble();
+				datetime = (String) in.readObject();
+			} catch (ClassNotFoundException e) {
+				System.err.println("Error reading values");
+			}
+			setValues(minX, maxX, minY, maxY, datetime);
+//			readFromDB();
+//			for (int k: checkins) {
+//				System.out.println(k);
+//			}
 		} catch (IOException e) {
 			System.err.println("Could not initialize server");
 		} finally {
