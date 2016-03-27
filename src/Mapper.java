@@ -15,12 +15,21 @@ public class Mapper implements MapWorker {
 	private double minX, maxX, minY, maxY = 0; // X is Longtitude, Y is Latitude
 	private String datetime;
 
+	public Mapper(int port) {
+		this.mapper_port = port;
+	}
+	
 	public Mapper(int port, double minX, double maxX, double minY, double maxY, String datetime) {
 		this.mapper_port = port;
 		setPosition(minX, maxX, minY, maxY);
 		setDate(datetime);
 	}
 
+	public void setValues(double minX, double maxX, double minY, double maxY, String datetime) {
+		setPosition(minX, maxX, minY, maxY);
+		setDate(datetime);
+	}
+	
 	private void setPosition(double minX, double maxX, double minY, double maxY) {
 		this.minX = minX;
 		this.maxX = maxX;
