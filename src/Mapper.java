@@ -20,11 +20,10 @@ public class Mapper implements MapWorker {
 			System.out.println("Port is in use");
 			System.out.println("Run again the program with another port");
 			System.exit(-1);
-		}
-		else
+		} else
 			this.mapper_port = port;
 	}
-	
+
 	public Mapper(int port, double minX, double maxX, double minY, double maxY, String datetime) {
 		this.mapper_port = port;
 		setPosition(minX, maxX, minY, maxY);
@@ -35,7 +34,7 @@ public class Mapper implements MapWorker {
 		setPosition(minX, maxX, minY, maxY);
 		setDate(datetime);
 	}
-	
+
 	private void setPosition(double minX, double maxX, double minY, double maxY) {
 		this.minX = minX;
 		this.maxX = maxX;
@@ -60,10 +59,9 @@ public class Mapper implements MapWorker {
 
 		try {
 			con = DriverManager.getConnection(url, user, password);
-			pst = con.prepareStatement("select id" + " from checkins where (latitude between "+minY+" and "+maxY+") "
-					+ "and (longitude between "+ minX+ " and "+ maxX+") "
-					+ "and time > STR_TO_DATE('"+datetime+"', '%Y-%m-%d %H:%i:%s')"
-					+ "limit 5;");
+			pst = con.prepareStatement("select id" + " from checkins where (latitude between " + minY + " and " + maxY
+					+ ") " + "and (longitude between " + minX + " and " + maxX + ") " + "and time > STR_TO_DATE('"
+					+ datetime + "', '%Y-%m-%d %H:%i:%s')" + "limit 5;");
 			rs = pst.executeQuery();
 
 			while (rs.next()) {
@@ -98,34 +96,18 @@ public class Mapper implements MapWorker {
 	public void initialize() {
 
 		try {
-			//readFromDB();
+			// readFromDB();
 			mapper = new ServerSocket(mapper_port);
 			client = mapper.accept();
-			ObjectInputStream in = new ObjectInputStream(client.getInputStream());
-			ObjectOutputStream out = new ObjectOutputStream(client.getOutputStream());
-			try {
-				minX = in.readDouble();
-				maxX = in.readDouble();
-				minY = in.readDouble();
-				maxY = in.readDouble();
-				datetime = (String) in.readObject();
-			} catch (ClassNotFoundException e) {
-				System.err.println("Error reading values");
-			}
-			setValues(minX, maxX, minY, maxY, datetime);
-			readFromDB();
-			for (int k: checkins) {
-				System.out.println(k);
-			}
 		} catch (IOException e) {
-			e.printStackTrace();
-			System.err.println("Could not initialize server");
-		} finally {
-			try {
-				client.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			System.err.println("Could not initialize server...");
+		}
+		Thread init = new Thread(initValues());
+		init.start();
+		// Prints id's
+		readFromDB();
+		for (int k : checkins) {
+			System.out.println(k);
 		}
 	}
 
@@ -152,7 +134,7 @@ public class Mapper implements MapWorker {
 		// TODO Auto-generated method stub
 
 	}
-	
+
 	public boolean checkPortAvailability(int port) {
 		ServerSocket available = null;
 		try {
@@ -164,4 +146,45 @@ public class Mapper implements MapWorker {
 		}
 	}
 
+	public Runnable initValues() {
+		Runnable runnable = new Runnable() {
+			@Override
+			public void run() {
+				synchronized (this) {
+					ObjectInputStream in = null;
+					ObjectOutputStream out = null;
+					try {
+						in = new ObjectInputStream(client.getInputStream());
+						out = new ObjectOutputStream(client.getOutputStream());
+					} catch (IOException e3) {
+						System.err.println("Could not initialize streams...");
+					}
+					try {
+						minX = in.readDouble();
+						maxX = in.readDouble();
+						minY = in.readDouble();
+						maxY = in.readDouble();
+					} catch (IOException e1) {
+						System.err.println("Error loading values...");
+						e1.printStackTrace();
+					}
+					try {
+						datetime = (String) in.readObject();
+					} catch (IOException | ClassNotFoundException e) {
+						System.err.println("Error reading values");
+						e.printStackTrace();
+					} finally {
+						try {
+							in.close();
+							out.close();
+							client.close();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			};
+		};
+		return runnable;
+	}
 }

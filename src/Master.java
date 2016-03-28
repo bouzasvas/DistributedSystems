@@ -41,13 +41,16 @@ public class Master {
 		function = input.nextInt();
 
 		if (function == 1) {
-			ConnectToMapper map1 = new ConnectToMapper();
-			ConnectToMapper map2 = new ConnectToMapper();
-			ConnectToMapper map3 = new ConnectToMapper();
+			ConnectToMapper map1 = new ConnectToMapper(ports.get(0)); //Client1
+			ConnectToMapper map2 = new ConnectToMapper(ports.get(1)); //Client2
+			ConnectToMapper map3 = new ConnectToMapper(ports.get(2)); //Client3
 			
-			map1.connect("localhost", ports.get(0));
-			map2.connect("localhost", ports.get(1));
-			map3.connect("localhost", ports.get(2));
+			map1.start();
+			map2.start();
+			map3.start();
+//			map1.connect("localhost", ports.get(0));
+//			map2.connect("localhost", ports.get(1));
+//			map3.connect("localhost", ports.get(2));
 			
 			
 			
