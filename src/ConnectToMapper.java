@@ -17,13 +17,14 @@ public class ConnectToMapper extends Thread {
 	private ObjectInputStream in = null;
 	private ObjectOutputStream out = null;
 
-	public ConnectToMapper(int port) {
+	//This constructor is used only for Testing
+	public ConnectToMapper(String address, int port) {
 		this.minX = -74.9;
 		this.maxX = -73.9;
 		this.minY = 40.6;
 		this.maxY = 40.9;
 		this.datetime = "2012-04-04 00:00:00";
-		this.address = "localhost";
+		this.address = address;
 		this.port = port;
 	}
 
@@ -34,29 +35,33 @@ public class ConnectToMapper extends Thread {
 		this.maxY = maxY;
 		this.datetime = datetime;
 	}
+	
+	public void connect() {	//this method establishes the connection
+		try {
+			client = new Socket(InetAddress.getByName(address), port);
+			// in = new ObjectInputStream(client.getInputStream());
+			out = new ObjectOutputStream(client.getOutputStream());
 
-	public void run() {
+			out.writeDouble(minX);
+			out.flush();
+			out.writeDouble(maxX);
+			out.flush();
+			out.writeDouble(minY);
+			out.flush();
+			out.writeDouble(maxY);
+			out.flush();
+			out.writeObject(datetime);
+			out.flush();
+		} catch (UnknownHostException e) {
+			System.err.println("Could not find host...");
+		} catch (IOException e) {
+			System.err.println("Could not connect...");
+		}
+	}
+
+	public void run() { //this method runs the thread
 		synchronized (this) {
-			try {
-				client = new Socket(InetAddress.getByName(address), port);
-				// in = new ObjectInputStream(client.getInputStream());
-				out = new ObjectOutputStream(client.getOutputStream());
-
-				out.writeDouble(minX);
-				out.flush();
-				out.writeDouble(maxX);
-				out.flush();
-				out.writeDouble(minY);
-				out.flush();
-				out.writeDouble(maxY);
-				out.flush();
-				out.writeObject(datetime);
-				out.flush();
-			} catch (UnknownHostException e) {
-				System.err.println("Could not find host...");
-			} catch (IOException e) {
-				System.err.println("Could not connect...");
-			}
+			connect();
 		}
 	}
 

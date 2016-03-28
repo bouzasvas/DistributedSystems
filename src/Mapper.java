@@ -94,7 +94,6 @@ public class Mapper implements MapWorker {
 
 	@Override
 	public void initialize() {
-
 		try {
 			// readFromDB();
 			mapper = new ServerSocket(mapper_port);
@@ -151,6 +150,7 @@ public class Mapper implements MapWorker {
 			@Override
 			public void run() {
 				synchronized (this) {
+					//here or as class members??
 					ObjectInputStream in = null;
 					ObjectOutputStream out = null;
 					try {
