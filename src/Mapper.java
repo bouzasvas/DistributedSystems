@@ -16,7 +16,13 @@ public class Mapper implements MapWorker {
 	private String datetime;
 
 	public Mapper(int port) {
-		this.mapper_port = port;
+		if (!checkPortAvailability(port)) {
+			System.out.println("Port is in use");
+			System.out.println("Run again the program with another port");
+			System.exit(-1);
+		}
+		else
+			this.mapper_port = port;
 	}
 	
 	public Mapper(int port, double minX, double maxX, double minY, double maxY, String datetime) {
@@ -48,9 +54,9 @@ public class Mapper implements MapWorker {
 		java.sql.PreparedStatement pst = null;
 		ResultSet rs = null;
 
-		String url = "jdbc:mysql://localhost:3306/sys?autoReconnect=true&useSSL=false";
-		String user = "admin";
-		String password = "admin";
+		String url = "jdbc:mysql://195.251.252.98:3306/ds_systems_2016?autoReconnect=true&useSSL=false";
+		String user = "omada8";
+		String password = "omada8db";
 
 		try {
 			con = DriverManager.getConnection(url, user, password);
@@ -107,11 +113,12 @@ public class Mapper implements MapWorker {
 				System.err.println("Error reading values");
 			}
 			setValues(minX, maxX, minY, maxY, datetime);
-//			readFromDB();
-//			for (int k: checkins) {
-//				System.out.println(k);
-//			}
+			readFromDB();
+			for (int k: checkins) {
+				System.out.println(k);
+			}
 		} catch (IOException e) {
+			e.printStackTrace();
 			System.err.println("Could not initialize server");
 		} finally {
 			try {
@@ -144,6 +151,17 @@ public class Mapper implements MapWorker {
 	public void sendToReducers(Map<Integer, Object> toReducer) {
 		// TODO Auto-generated method stub
 
+	}
+	
+	public boolean checkPortAvailability(int port) {
+		ServerSocket available = null;
+		try {
+			available = new ServerSocket(port);
+			available.close();
+			return true;
+		} catch (IOException e) {
+			return false;
+		}
 	}
 
 }
