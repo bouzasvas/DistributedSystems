@@ -19,16 +19,16 @@ public class ConnectToMapper extends Thread {
 
 	//This constructor is used only for Testing
 	public ConnectToMapper(String address, int port) {
-		this.minX = -74.9;
-		this.maxX = -73.9;
-		this.minY = 40.6;
-		this.maxY = 40.9;
-		this.datetime = "2012-04-04 00:00:00";
+		this(-74.9, -73.9, 40.6, 40.9, "2012-04-04 00:00:00");
 		this.address = address;
 		this.port = port;
 	}
 
 	public ConnectToMapper(double minX, double maxX, double minY, double maxY, String datetime) {
+		setValues(minX, maxX, minY, maxY, datetime);
+	}
+	
+	public void setValues(double minX, double maxX, double minY, double maxY, String datetime) {
 		this.minX = minX;
 		this.maxX = maxX;
 		this.minY = minY;

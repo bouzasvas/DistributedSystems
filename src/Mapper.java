@@ -175,6 +175,7 @@ public class Mapper implements MapWorker {
 						e.printStackTrace();
 					} finally {
 						try {
+							//Maybe not close here!
 							in.close();
 							out.close();
 							client.close();
