@@ -98,6 +98,10 @@ public class Mapper implements MapWorker {
 			// readFromDB();
 			mapper = new ServerSocket(mapper_port);
 			client = mapper.accept();
+			
+			ObjectOutputStream ack = new ObjectOutputStream(client.getOutputStream());
+			ack.writeObject("Succesfully connected to "+client.getInetAddress()+
+					" at port "+client.getLocalPort());
 		} catch (IOException e) {
 			System.err.println("Could not initialize server...");
 		}

@@ -52,9 +52,19 @@ public class ConnectToMapper extends Thread {
 	public void connect() {	//this method establishes the connection
 			try {
 				client = new Socket(InetAddress.getByName(address), port);
-				// in = new ObjectInputStream(client.getInputStream());
+				
+				in = new ObjectInputStream(client.getInputStream());
 				out = new ObjectOutputStream(client.getOutputStream());
 
+				String serverResponse = null;
+				try {
+					serverResponse = (String) in.readObject();
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				System.out.println(">"+serverResponse);
+				
 				out.writeDouble(minX);
 				out.flush();
 				out.writeDouble(maxX);
