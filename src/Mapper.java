@@ -53,7 +53,7 @@ public class Mapper implements MapWorker {
 		java.sql.PreparedStatement pst = null;
 		ResultSet rs = null;
 
-		String url = "jdbc:mysql://195.251.252.98:3306/ds_systems_2016?autoReconnect=true&useSSL=false";
+		String url = "jdbc:mysql://83.212.117.76:3306/ds_systems_2016?autoReconnect=true&useSSL=false";
 		String user = "omada8";
 		String password = "omada8db";
 

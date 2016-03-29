@@ -24,6 +24,12 @@ public class ConnectToMapper extends Thread {
 		this.port = port;
 	}
 
+	public ConnectToMapper(double minX, double maxX, double minY, double maxY, String datetime, String address, int port) {
+		setValues(minX, maxX, minY, maxY, datetime);
+		this.address = address;
+		this.port = port;
+	}
+	
 	public ConnectToMapper(double minX, double maxX, double minY, double maxY, String datetime) {
 		setValues(minX, maxX, minY, maxY, datetime);
 	}

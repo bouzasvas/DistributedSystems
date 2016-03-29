@@ -41,10 +41,23 @@ public class Master {
 		function = input.nextInt();
 
 		if (function == 1) {
+			double minX, maxX, minY, maxY;
+			String datetime;
+			
+			minX  = -74.9;
+			maxX = -73.9;
+			minY = 40.6;
+			maxY = 40.9;
+			datetime = "2012-04-04 00:00:00";
+			
+			
 			//ConnectToMapper is like Clients
-			ConnectToMapper map1 = new ConnectToMapper("localhost", ports.get(0)); //Client1
-			ConnectToMapper map2 = new ConnectToMapper("localhost", ports.get(1)); //Client2
-			ConnectToMapper map3 = new ConnectToMapper("localhost", ports.get(2)); //Client3
+//			ConnectToMapper map1 = new ConnectToMapper("localhost", ports.get(0)); //Client1
+//			ConnectToMapper map2 = new ConnectToMapper("localhost", ports.get(1)); //Client2
+//			ConnectToMapper map3 = new ConnectToMapper("localhost", ports.get(2)); //Client3
+			ConnectToMapper map1 = new ConnectToMapper(minX, ((maxX-minX)*1/3), minY, maxY, datetime, "localhost", ports.get(0)); //Client1
+			ConnectToMapper map2 = new ConnectToMapper(((maxX-minX)*1/3), ((maxX-minX)*2/3), minY, maxY, datetime, "localhost", ports.get(1)); //Client2
+			ConnectToMapper map3 = new ConnectToMapper(((maxX-minX)*2/3), (maxX-minX), minY, maxY, datetime, "localhost", ports.get(2)); //Client3
 			
 			//Starting Threads
 			map1.start();
