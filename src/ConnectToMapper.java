@@ -4,6 +4,7 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.List;
 
 public class ConnectToMapper extends Thread {
 
@@ -26,6 +27,12 @@ public class ConnectToMapper extends Thread {
 
 	public ConnectToMapper(double minX, double maxX, double minY, double maxY, String datetime, String address, int port) {
 		setValues(minX, maxX, minY, maxY, datetime);
+		this.address = address;
+		this.port = port;
+	}
+	
+	public ConnectToMapper(List<Double> values, String datetime, String address, int port) {
+		setValues(values.get(0), values.get(1), values.get(2), values.get(3), datetime);
 		this.address = address;
 		this.port = port;
 	}

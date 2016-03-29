@@ -8,7 +8,7 @@ public class Master {
 //	static Socket client;
 //	static ObjectInputStream in = null;
 //	static ObjectOutputStream out = null;
-
+	
 	static Mapper mapper;
 	static Reducer reducer;
 
@@ -33,6 +33,41 @@ public class Master {
 			System.err.println("Error loading file..");
 		}
 	}
+	
+	private static List<Double> initCoordinates (int k) {
+		//data for testing
+		double minX, maxX, minY, maxY;
+		
+		minX  = -74.0144996501386;
+		maxX = -73.9018372248612;
+		minY = 40.67747711364791;
+		maxY = 40.76662365086325;
+		
+		List<Double> coordinates = new ArrayList<Double>();
+		if (k == 1) {
+			coordinates.add(minX);
+			double newMaxX = ((maxX-minX)*1/3)+minX;
+			coordinates.add(newMaxX);
+			coordinates.add(minY);
+			coordinates.add(maxY);
+		}
+		else if (k == 2) {
+			double newMinX =  ((maxX-minX)*1/3)+minX;
+			coordinates.add(newMinX);
+			double newMaxX = ((maxX-minX)*2/3)+minX;
+			coordinates.add(newMaxX);
+			coordinates.add(minY);
+			coordinates.add(maxY);
+		}
+		else if (k ==3) {
+			double newMinX = ((maxX-minX)*2/3)+minX;
+			coordinates.add(newMinX);
+			coordinates.add(maxX);
+			coordinates.add(minY);
+			coordinates.add(maxY);
+		}
+			return coordinates;
+	}
 
 	public static void main(String[] args) {
 
@@ -41,23 +76,16 @@ public class Master {
 		function = input.nextInt();
 
 		if (function == 1) {
-			double minX, maxX, minY, maxY;
-			String datetime;
 			
-			minX  = -74.9;
-			maxX = -73.9;
-			minY = 40.6;
-			maxY = 40.9;
-			datetime = "2012-04-04 00:00:00";
-			
+			String datetime = "2012-05-09 12:54:16";
 			
 			//ConnectToMapper is like Clients
 //			ConnectToMapper map1 = new ConnectToMapper("localhost", ports.get(0)); //Client1
 //			ConnectToMapper map2 = new ConnectToMapper("localhost", ports.get(1)); //Client2
 //			ConnectToMapper map3 = new ConnectToMapper("localhost", ports.get(2)); //Client3
-			ConnectToMapper map1 = new ConnectToMapper(minX, ((maxX-minX)*1/3), minY, maxY, datetime, "localhost", ports.get(0)); //Client1
-			ConnectToMapper map2 = new ConnectToMapper(((maxX-minX)*1/3), ((maxX-minX)*2/3), minY, maxY, datetime, "localhost", ports.get(1)); //Client2
-			ConnectToMapper map3 = new ConnectToMapper(((maxX-minX)*2/3), (maxX-minX), minY, maxY, datetime, "localhost", ports.get(2)); //Client3
+			ConnectToMapper map1 = new ConnectToMapper(initCoordinates(1), datetime, "localhost", ports.get(0)); //Client1
+			ConnectToMapper map2 = new ConnectToMapper(initCoordinates(2), datetime, "localhost", ports.get(1)); //Client2
+			ConnectToMapper map3 = new ConnectToMapper(initCoordinates(3), datetime, "localhost", ports.get(2)); //Client3
 			
 			//Starting Threads
 			map1.start();
