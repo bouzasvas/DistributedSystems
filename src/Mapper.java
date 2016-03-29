@@ -103,7 +103,7 @@ public class Mapper implements MapWorker {
 		}
 		Thread init = new Thread(initValues());
 		init.start();
-		// Prints id's
+		// Prints query
 		readFromDB();
 		for (int k : checkins) {
 			System.out.println(k);
@@ -149,7 +149,7 @@ public class Mapper implements MapWorker {
 		Runnable runnable = new Runnable() {
 			@Override
 			public void run() {
-				synchronized (this) {
+				synchronized (client) {
 					//here or as class members??
 					ObjectInputStream in = null;
 					ObjectOutputStream out = null;

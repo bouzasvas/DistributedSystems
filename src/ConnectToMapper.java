@@ -50,40 +50,40 @@ public class ConnectToMapper extends Thread {
 	}
 	
 	public void connect() {	//this method establishes the connection
-		try {
-			client = new Socket(InetAddress.getByName(address), port);
-			// in = new ObjectInputStream(client.getInputStream());
-			out = new ObjectOutputStream(client.getOutputStream());
-
-			out.writeDouble(minX);
-			out.flush();
-			out.writeDouble(maxX);
-			out.flush();
-			out.writeDouble(minY);
-			out.flush();
-			out.writeDouble(maxY);
-			out.flush();
-			out.writeObject(datetime);
-			out.flush();
-		} catch (UnknownHostException e) {
-			System.err.println("Could not find host...");
-		} catch (IOException e) {
-			System.err.println("Could not connect...");
-		}
-		finally {
 			try {
-				out.close();
+				client = new Socket(InetAddress.getByName(address), port);
+				// in = new ObjectInputStream(client.getInputStream());
+				out = new ObjectOutputStream(client.getOutputStream());
+
+				out.writeDouble(minX);
+				out.flush();
+				out.writeDouble(maxX);
+				out.flush();
+				out.writeDouble(minY);
+				out.flush();
+				out.writeDouble(maxY);
+				out.flush();
+				out.writeObject(datetime);
+				out.flush();
+			} catch (UnknownHostException e) {
+				System.err.println("Could not find host...");
+			} catch (IOException e) {
+				System.err.println("Could not connect...");
 			}
-			catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
+			finally {
+				try {
+					if (!this.address.equals("localhost"))
+						out.close();
+				}
+				catch (IOException e) {
+					e.printStackTrace();
+				}
+			}	
+		}	
 
 	public void run() { //this method runs the thread
 		synchronized (this) {
 			connect();
 		}
 	}
-
 }

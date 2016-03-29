@@ -5,19 +5,16 @@ import java.net.*;
 import java.io.*;
 
 public class Master {
-//	static Socket client;
-//	static ObjectInputStream in = null;
-//	static ObjectOutputStream out = null;
-	
 	static Mapper mapper;
 	static Reducer reducer;
 
 	static List<Integer> ports = new ArrayList<Integer>();
+	
 	static int function;
 	static int mapperID;
 	static Scanner input = new Scanner(System.in);
 
-	public static void initPorts() {
+	public static void initPorts() { //this method initializes the List ports with the contents of file ports_numbers
 		try {
 			FileReader fr = new FileReader("ports_numbers");
 			BufferedReader reader = new BufferedReader(fr);
@@ -34,7 +31,8 @@ public class Master {
 		}
 	}
 	
-	private static List<Double> initCoordinates (int k) {
+	
+	private static List<Double> initCoordinates (int k) { //this method is used for passing coordinates values to mappers
 		//data for testing
 		double minX, maxX, minY, maxY;
 		
@@ -44,14 +42,14 @@ public class Master {
 		maxY = 40.76662365086325;
 		
 		List<Double> coordinates = new ArrayList<Double>();
-		if (k == 1) {
+		if (k == 1) { //if is mapper1
 			coordinates.add(minX);
 			double newMaxX = ((maxX-minX)*1/3)+minX;
 			coordinates.add(newMaxX);
 			coordinates.add(minY);
 			coordinates.add(maxY);
 		}
-		else if (k == 2) {
+		else if (k == 2) { //if is mapper2
 			double newMinX =  ((maxX-minX)*1/3)+minX;
 			coordinates.add(newMinX);
 			double newMaxX = ((maxX-minX)*2/3)+minX;
@@ -59,7 +57,7 @@ public class Master {
 			coordinates.add(minY);
 			coordinates.add(maxY);
 		}
-		else if (k ==3) {
+		else if (k ==3) { //if is mapper3
 			double newMinX = ((maxX-minX)*2/3)+minX;
 			coordinates.add(newMinX);
 			coordinates.add(maxX);
@@ -68,24 +66,32 @@ public class Master {
 		}
 			return coordinates;
 	}
+	
+	private static String setDate(String date) {
+		return date;
+	}
+	
+	public static void welcomeMsg() { //Prints welcome messages program starts
+		System.out.println("Select Role:");
+		System.out.println("1) Client");
+		System.out.println("2) Mapper");
+		System.out.println("3) Reducer");
+		System.out.print(">");
+	}
+	
 
 	public static void main(String[] args) {
 
 		initPorts();
-		System.out.println("Press 1 for Client\n2 for Mapper\nand 3 for Reducer");
+		welcomeMsg();
 		function = input.nextInt();
 
-		if (function == 1) {
-			
-			String datetime = "2012-05-09 12:54:16";
-			
+		if (function == 1) {			
+
 			//ConnectToMapper is like Clients
-//			ConnectToMapper map1 = new ConnectToMapper("localhost", ports.get(0)); //Client1
-//			ConnectToMapper map2 = new ConnectToMapper("localhost", ports.get(1)); //Client2
-//			ConnectToMapper map3 = new ConnectToMapper("localhost", ports.get(2)); //Client3
-			ConnectToMapper map1 = new ConnectToMapper(initCoordinates(1), datetime, "localhost", ports.get(0)); //Client1
-			ConnectToMapper map2 = new ConnectToMapper(initCoordinates(2), datetime, "localhost", ports.get(1)); //Client2
-			ConnectToMapper map3 = new ConnectToMapper(initCoordinates(3), datetime, "localhost", ports.get(2)); //Client3
+			ConnectToMapper map1 = new ConnectToMapper(initCoordinates(1), setDate("2012-05-09 12:54:16"), "localhost", ports.get(0)); //Client1
+			ConnectToMapper map2 = new ConnectToMapper(initCoordinates(2), setDate("2012-05-09 12:54:16"), "localhost", ports.get(1)); //Client2
+			ConnectToMapper map3 = new ConnectToMapper(initCoordinates(3), setDate("2012-05-09 12:54:16"), "localhost", ports.get(2)); //Client3
 			
 			//Starting Threads
 			map1.start();
@@ -94,7 +100,11 @@ public class Master {
 		}
 		else if (function == 2) {
 			System.out.println("Select mapper from 1 to 3");
+			System.out.print(">");
 			mapperID = input.nextInt();
+			if (mapperID == 0||mapperID > 3) {
+				System.out.println("No mapper found for this selection!");
+			}
 			int port = mapperID-1;
 			
 			mapper = new Mapper(ports.get(port));		
@@ -103,6 +113,9 @@ public class Master {
 		else if (function == 3) {
 			Reducer reducer = new Reducer(ports.get(3));
 			reducer.initialize();
+		}
+		else {
+			System.out.println("Select one of the available options");
 		}
 	}
 }
