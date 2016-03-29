@@ -70,6 +70,14 @@ public class ConnectToMapper extends Thread {
 		} catch (IOException e) {
 			System.err.println("Could not connect...");
 		}
+		finally {
+			try {
+				out.close();
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public void run() { //this method runs the thread
