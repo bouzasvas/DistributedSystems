@@ -9,7 +9,7 @@ import java.io.*;
 
 public class Mapper implements MapWorker {
 
-	private List<Integer> checkins = null;
+	private Map<String, Integer> checkins = null;
 	private ServerSocket mapper = null;
 	private Socket client = null;
 	private int mapper_port = 0;
@@ -48,7 +48,7 @@ public class Mapper implements MapWorker {
 	}
 
 	public void readFromDB() {
-		checkins = new ArrayList<Integer>();
+		checkins = new HashMap<String, Integer>();
 
 		Connection con = null;
 		java.sql.PreparedStatement pst = null;
@@ -60,15 +60,15 @@ public class Mapper implements MapWorker {
 
 		try {
 			con = DriverManager.getConnection(url, user, password);
-			pst = con.prepareStatement("select id" + " from checkins where (latitude between " + minY + " and " + maxY
+			pst = con.prepareStatement("select POI" + " from checkins where (latitude between " + minY + " and " + maxY
 					+ ") " + "and (longitude between " + minX + " and " + maxX + ") " + "and time > STR_TO_DATE('"
-					+ datetime + "', '%Y-%m-%d %H:%i:%s')" + "limit 5;");
+					+ datetime + "', '%Y-%m-%d %H:%i:%s');");
 			rs = pst.executeQuery();
 
 			while (rs.next()) {
 				String tmp;
 				tmp = rs.getString(1);
-				checkins.add(Integer.parseInt(tmp));
+				checkins.put(tmp, 1);
 			}
 		} catch (SQLException ex) {
 			Logger lgr = Logger.getLogger(Mapper.class.getName());
@@ -106,13 +106,10 @@ public class Mapper implements MapWorker {
 		} catch (IOException e) {
 			System.err.println("Could not initialize server...");
 		}
-		Thread init = new Thread(initValues());
+		Thread init = new Thread(initValues()); //To-Review
 		init.start();
-		// Prints query
 		readFromDB();
-		for (int k : checkins) {
-			System.out.println(k);
-		}
+		map(checkins);
 	}
 
 	@Override
@@ -122,9 +119,40 @@ public class Mapper implements MapWorker {
 	}
 
 	@Override
-	public Map<Integer, Object> map(Object key, Object value) {
-		// TODO Auto-generated method stub
-		return null;
+	public Map<String, Integer> map(Map<String, Integer> checkins) {
+			
+		Map<String, Integer> intermediateMap = new HashMap<String, Integer>();
+		int numberOfCheckins;
+		String POI;
+		
+		Iterator it = checkins.entrySet().iterator();
+		
+		while (it.hasNext()) {
+			Map.Entry pair = (Map.Entry) it.next();
+			POI = (String) pair.getKey();
+			numberOfCheckins = checkins.get(POI);
+			
+			Map.Entry current = pair;
+			while(current.getKey().equals(POI)) {
+			numberOfCheckins++;
+			
+//			 numberOfCheckins = lines.stream().parallel().filter(p -> p.getLine().contains("test"))
+//		               .map(p -> p.count("test")).reduce((sum, p) -> sum + p).get();
+			
+			System.out.println(pair.getKey()+"||"+pair.getValue());
+			pair = (Map.Entry) it.next();
+		}
+			intermediateMap.put((String) pair.getKey(), numberOfCheckins);
+			it.remove();
+		}
+		
+		Iterator it1 = intermediateMap.entrySet().iterator();
+		
+		while (it.hasNext()) {
+			Map.Entry pair = (Map.Entry) it.next();
+			System.out.println(pair.getKey()+"||"+pair.getValue());
+		}
+		return intermediateMap;
 	}
 
 	@Override
