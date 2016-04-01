@@ -3,16 +3,24 @@ import java.util.*;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.net.*;
 import java.sql.*;
 import java.io.*;
 
 public class Mapper implements MapWorker {
 
-	private Map<String, Integer> checkins = null;
+	//private Map<String, Integer> checkins = null;
+	
+	private List<ListOfCheckins> Checkins_Area = new ArrayList<ListOfCheckins>();
+	
 	private ServerSocket mapper = null;
 	private Socket client = null;
 	private int mapper_port = 0;
+	
+	private int cores;
+	
 	private double minX, maxX, minY, maxY = 0; // X is Longtitude, Y is Latitude
 	private String datetime;
 
@@ -47,8 +55,55 @@ public class Mapper implements MapWorker {
 		this.datetime = datetime;
 	}
 
-	public void readFromDB() {
-		checkins = new HashMap<String, Integer>();
+	@Override
+	public void initialize() {
+		try {
+			cores = Runtime.getRuntime().availableProcessors();
+			System.out.println("Mapper has "+cores+" cores");
+			
+			mapper = new ServerSocket(mapper_port);
+			client = mapper.accept();
+			
+			ObjectOutputStream ack = new ObjectOutputStream(client.getOutputStream());
+			ack.writeObject("Succesfully connected to "+client.getInetAddress()+
+					" at port "+client.getLocalPort());
+		} catch (IOException e) {
+			System.err.println("Could not initialize server...");
+		}
+		Thread init = new Thread(initValues()); //To-Review
+		init.start();
+		
+		seperateMap(cores);
+		map(Checkins_Area);
+	}
+
+	@Override
+	public void waitForTasksThread() {
+		// TODO Auto-generated method stub
+
+	}
+	
+	public void seperateMap(int coresNo) {
+		if (coresNo == 1)
+			Checkins_Area.add(readFromDB(minY, maxY));
+		else {
+			maxY = ((maxY - minY)/coresNo)+minY;
+			for (int k = 1; k <= coresNo; k++) {
+				Checkins_Area.add(readFromDB(minY, maxY));
+				double minYtmp = minY;
+				minY = maxY;
+				maxY = maxY + minYtmp;
+			}
+		}
+		for ( ListOfCheckins check : Checkins_Area) {
+			check.printCheckins();
+			System.out.println("**************************************************");
+		}
+	}
+	
+	public ListOfCheckins readFromDB(double CoreMinY, double CoreMaxY) {
+		//checkins = new HashMap<String, Integer>();
+		ListOfCheckins checkins = new ListOfCheckins();
 
 		Connection con = null;
 		java.sql.PreparedStatement pst = null;
@@ -60,15 +115,26 @@ public class Mapper implements MapWorker {
 
 		try {
 			con = DriverManager.getConnection(url, user, password);
-			pst = con.prepareStatement("select POI" + " from checkins where (latitude between " + minY + " and " + maxY
+			pst = con.prepareStatement("select POI, POI_name, POI_category, POI_category_id, latitude, longitude, time, photos" 
+					+" from checkins where (latitude between " + CoreMinY + " and " + CoreMaxY
 					+ ") " + "and (longitude between " + minX + " and " + maxX + ") " + "and time > STR_TO_DATE('"
-					+ datetime + "', '%Y-%m-%d %H:%i:%s');");
+					+ datetime + "', '%Y-%m-%d %H:%i:%s') limit 50;");
 			rs = pst.executeQuery();
 
+			String POI, POI_name, POI_category, POI_category_id, time, photos;
+			double latitude, longitude;
+			
 			while (rs.next()) {
-				String tmp;
-				tmp = rs.getString(1);
-				checkins.put(tmp, 1);
+				POI = rs.getString(1);
+				POI_name = rs.getString(2);
+				POI_category = rs.getString(3);
+				POI_category_id = rs.getString(4);
+				latitude = rs.getDouble(5);
+				longitude = rs.getDouble(6);
+				time = rs.getString(7);
+				photos = rs.getString(8);
+				//checkins.put(tmp, 1);
+				checkins.addCheckin(POI, POI_name, POI_category, POI_category_id, longitude, latitude, time, photos);
 			}
 		} catch (SQLException ex) {
 			Logger lgr = Logger.getLogger(Mapper.class.getName());
@@ -91,67 +157,18 @@ public class Mapper implements MapWorker {
 				lgr.log(Level.WARNING, ex.getMessage(), ex);
 			}
 		}
+		return checkins;
 	}
 
 	@Override
-	public void initialize() {
-		try {
-			// readFromDB();
-			mapper = new ServerSocket(mapper_port);
-			client = mapper.accept();
-			
-			ObjectOutputStream ack = new ObjectOutputStream(client.getOutputStream());
-			ack.writeObject("Succesfully connected to "+client.getInetAddress()+
-					" at port "+client.getLocalPort());
-		} catch (IOException e) {
-			System.err.println("Could not initialize server...");
-		}
-		Thread init = new Thread(initValues()); //To-Review
-		init.start();
-		readFromDB();
-		map(checkins);
-	}
-
-	@Override
-	public void waitForTasksThread() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public Map<String, Integer> map(Map<String, Integer> checkins) {
-			
+	public Map<String, Integer> map(List<ListOfCheckins> checkins) {		
 		Map<String, Integer> intermediateMap = new HashMap<String, Integer>();
 		int numberOfCheckins;
-		String POI;
-		
-		Iterator it = checkins.entrySet().iterator();
-		
-		while (it.hasNext()) {
-			Map.Entry pair = (Map.Entry) it.next();
-			POI = (String) pair.getKey();
-			numberOfCheckins = checkins.get(POI);
+					
+		//intermediateMap = checkins.stream().parallel().filter(p -> p.getCheckin(0).getPOI().contains("4")).map(p -> p.count(p.getCheckin(0).getPOI())).collect(Collectors.groupingBy(Checkin::getPOI));
+//		numberOfCheckins = lines.stream().parallel().filter(p -> p.getLine().contains("test"))
+//							.map(p -> p.count("test")).reduce((sum, p) -> sum + p).get();
 			
-			Map.Entry current = pair;
-			while(current.getKey().equals(POI)) {
-			numberOfCheckins++;
-			
-//			 numberOfCheckins = lines.stream().parallel().filter(p -> p.getLine().contains("test"))
-//		               .map(p -> p.count("test")).reduce((sum, p) -> sum + p).get();
-			
-			System.out.println(pair.getKey()+"||"+pair.getValue());
-			pair = (Map.Entry) it.next();
-		}
-			intermediateMap.put((String) pair.getKey(), numberOfCheckins);
-			it.remove();
-		}
-		
-		Iterator it1 = intermediateMap.entrySet().iterator();
-		
-		while (it.hasNext()) {
-			Map.Entry pair = (Map.Entry) it.next();
-			System.out.println(pair.getKey()+"||"+pair.getValue());
-		}
 		return intermediateMap;
 	}
 
