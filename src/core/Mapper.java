@@ -67,20 +67,59 @@ public class Mapper implements MapWorker {
 			ObjectOutputStream ack = new ObjectOutputStream(client.getOutputStream());
 			ack.writeObject("Succesfully connected to "+client.getInetAddress()+
 					" at port "+client.getLocalPort());
+			
 		} catch (IOException e) {
 			System.err.println("Could not initialize server...");
 		}
-		Thread init = new Thread(initValues()); //To-Review
-		init.start();
-		
+		waitForTasksThread();
 		seperateMap(cores);
 		map(Checkins_Area);
 	}
 
 	@Override
 	public void waitForTasksThread() {
-		// TODO Auto-generated method stub
-
+		Runnable requestRunnable = new Runnable() {
+			@Override
+			public void run() {
+				synchronized (client) {
+					//here or as class members??
+					ObjectInputStream in = null;
+					ObjectOutputStream out = null;
+					try {
+						in = new ObjectInputStream(client.getInputStream());
+						out = new ObjectOutputStream(client.getOutputStream());
+					} catch (IOException e3) {
+						System.err.println("Could not initialize streams...");
+					}
+					try {
+						minX = in.readDouble();
+						maxX = in.readDouble();
+						minY = in.readDouble();
+						maxY = in.readDouble();
+					} catch (IOException e1) {
+						System.err.println("Error loading values...");
+						e1.printStackTrace();
+					}
+					try {
+						datetime = (String) in.readObject();
+					} catch (IOException | ClassNotFoundException e) {
+						System.err.println("Error reading values");
+						e.printStackTrace();
+					} finally {
+						try {
+							//Maybe not close here!
+							in.close();
+							out.close();
+							client.close();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			};
+		};
+		Thread request = new Thread(requestRunnable);
+		request.start();
 	}
 	
 	public void seperateMap(int coresNo) {
@@ -193,49 +232,5 @@ public class Mapper implements MapWorker {
 		} catch (IOException e) {
 			return false;
 		}
-	}
-
-	public Runnable initValues() {
-		Runnable runnable = new Runnable() {
-			@Override
-			public void run() {
-				synchronized (client) {
-					//here or as class members??
-					ObjectInputStream in = null;
-					ObjectOutputStream out = null;
-					try {
-						in = new ObjectInputStream(client.getInputStream());
-						out = new ObjectOutputStream(client.getOutputStream());
-					} catch (IOException e3) {
-						System.err.println("Could not initialize streams...");
-					}
-					try {
-						minX = in.readDouble();
-						maxX = in.readDouble();
-						minY = in.readDouble();
-						maxY = in.readDouble();
-					} catch (IOException e1) {
-						System.err.println("Error loading values...");
-						e1.printStackTrace();
-					}
-					try {
-						datetime = (String) in.readObject();
-					} catch (IOException | ClassNotFoundException e) {
-						System.err.println("Error reading values");
-						e.printStackTrace();
-					} finally {
-						try {
-							//Maybe not close here!
-							in.close();
-							out.close();
-							client.close();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			};
-		};
-		return runnable;
 	}
 }

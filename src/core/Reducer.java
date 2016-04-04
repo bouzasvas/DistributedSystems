@@ -1,27 +1,69 @@
 package core;
+
 import java.util.Map;
 import java.net.*;
+import java.io.*;
 
 public class Reducer implements ReduceWorker {
 	
 	private int reducerPort;
 	ServerSocket reducer = null;
 	Socket client = null;
+	ObjectInputStream input = null;
+	ObjectOutputStream output = null;
 	
 	public Reducer(int port) {
-		this.reducerPort = port;
+		if (checkPortAvailability(port))
+			this.reducerPort = port;
+		else {
+			System.out.println("Port "+port+" is in use!");
+			System.exit(-1);
+		}
 	}
 
 	@Override
 	public void initialize() {
-		// TODO Auto-generated method stub
-		
+		try {
+			while (true) {
+				reducer = new ServerSocket(reducerPort);
+				System.out.println("Running on local port "+reducer.getLocalPort()+" and waiting for connections..");
+				
+				try {
+					client = reducer.accept();
+				}
+				catch (IOException e) {
+					System.err.println("Problem while trying to connect to Reducer");
+				}
+				
+				waitForTasksThread();
+			}
+		}
+		catch (IOException e) {
+			
+		}
 	}
 
 	@Override
-	public void waitForTasksThread() {
-		// TODO Auto-generated method stub
-		
+	public void waitForTasksThread() {	
+		Runnable requestsRunnable = new Runnable() {
+			public void run() {
+				try {
+					input = new ObjectInputStream(client.getInputStream());
+					output = new ObjectOutputStream(client.getOutputStream());
+				}
+				catch (IOException e) {
+					System.err.println("Could not initialize IO objects");
+				}
+				try {
+					String msg = "Successfully connected to "+client.getInetAddress()+" on port: "+client.getPort();
+					output.writeObject(msg);
+				} catch (IOException e) {
+					System.err.println("Could not send reply to client");
+				}			
+			}
+		};
+		Thread request = new Thread(requestsRunnable);
+		request.start();
 	}
 
 	@Override
@@ -41,5 +83,15 @@ public class Reducer implements ReduceWorker {
 		// TODO Auto-generated method stub
 		
 	}
-
+	
+	public boolean checkPortAvailability(int port) {
+		ServerSocket available = null;
+		try {
+			available = new ServerSocket(port);
+			available.close();
+			return true;
+		} catch (IOException e) {
+			return false;
+		}
+	}
 }
