@@ -21,23 +21,19 @@ public class Reducer implements ReduceWorker {
 
 	@Override
 	public void initialize() {
-//			while (true) {
-				try {
-					reducer = new ServerSocket(reducerPort);
-					System.out.println("Running on local port "+reducer.getLocalPort()+" and waiting for connections..");
-				} catch (IOException e) {
-					System.err.println("Could not initialize Reduce Server");
-					e.printStackTrace();
-				}
-				try {
-					client = reducer.accept();
-				}
-				catch (IOException e) {
-					System.err.println("Problem while trying to connect to Reducer");
-				}
-				
+		
+		try {
+			reducer = new ServerSocket(reducerPort);
+			System.out.println("Running on local port "+reducer.getLocalPort()+" and waiting for connections..");
+			
+			while (true) {	
+				client = reducer.accept();
 				waitForTasksThread();
-//			}
+			}
+		}
+		catch (IOException e) {
+			System.err.println("Could not initialize Reduce Server...");
+		}
 	}
 
 	@Override
@@ -57,6 +53,7 @@ public class Reducer implements ReduceWorker {
 					}
 					
 					try {
+						System.out.println("XXXXXX");
 						String fromMapper = (String) input.readObject();
 						System.out.println(fromMapper);
 					}
