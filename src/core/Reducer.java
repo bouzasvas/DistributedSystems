@@ -61,13 +61,13 @@ public class Reducer implements ReduceWorker {
 						e.printStackTrace();
 					}
 					
-//					try {						
-//						String msg = "Successfully connected to "+client.getInetAddress()+" on port: "+client.getPort();
-//						output.writeObject(msg);
-//						output.flush();
-//					} catch (IOException e) {
-//						System.err.println("Could not send reply to client");
-//					}
+					try {						
+						String msg = "Successfully connected to "+client.getInetAddress()+" on port: "+client.getPort();
+						output.writeObject(msg);
+						output.flush();
+					} catch (IOException e) {
+						System.err.println("Could not send reply to client");
+					}
 				}
 			}
 		};

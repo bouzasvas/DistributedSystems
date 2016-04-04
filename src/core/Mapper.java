@@ -227,25 +227,36 @@ public class Mapper implements MapWorker {
 
 	@Override
 	public void sendToReducers(Map<String, Integer> toReducer) {
+		ObjectInputStream in = null;
 		ObjectOutputStream out = null;
+		
 		try {
 			reducer = new Socket(InetAddress.getByName(reducer_address), reducer_port);
-				//ObjectInputStream in = new ObjectInputStream(reducer.getInputStream());
-				out = new ObjectOutputStream(reducer.getOutputStream());
+			in = new ObjectInputStream(reducer.getInputStream());
+			out = new ObjectOutputStream(reducer.getOutputStream());
 				
 				out.writeObject("TEST!");
-				out.flush();				
+				out.flush();
+				
+				try {
+					String msg = (String) in.readObject();
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
 		}
 		catch (IOException e) {
 			System.err.println("Could not connect to Reducer...");
 		}
 		finally {
-			try {
-				out.close();
-				reducer.close();
-			}
-			catch (IOException e) {
-				e.printStackTrace();
+			if (!reducer_address.equals("localhost")) {
+				try {
+					in.close();
+					out.close();
+					reducer.close();
+				}
+				catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
