@@ -8,8 +8,9 @@ import java.io.*;
 public class Master {
 	static Mapper mapper;
 	static Reducer reducer;
+	static String reducerAddress = "localhost";
 
-	static List<Integer> ports = new ArrayList<Integer>();
+	static List<String> addr_ports = new ArrayList<String>();
 	
 	static int function;
 	static int mapperID;
@@ -17,12 +18,12 @@ public class Master {
 
 	public static void initPorts() { //this method initializes the List ports with the contents of file ports_numbers
 		try {
-			FileReader fr = new FileReader("ports_numbers");
+			FileReader fr = new FileReader("ADDR_PORTS");
 			BufferedReader reader = new BufferedReader(fr);
 			String line;
 			try {
 				while ((line = reader.readLine()) != null) {
-					ports.add(Integer.parseInt(line));
+					addr_ports.add(line);
 				}
 			} catch (IOException e) {
 				System.err.println("Error reading next line...");
@@ -88,11 +89,10 @@ public class Master {
 		function = input.nextInt();
 
 		if (function == 1) {			
-
 			//ConnectToMapper is like Clients
-			ConnectToMapper map1 = new ConnectToMapper(initCoordinates(1), setDate("2012-05-09 12:54:16"), "localhost", ports.get(0)); //Client1
-			ConnectToMapper map2 = new ConnectToMapper(initCoordinates(2), setDate("2012-05-09 12:54:16"), "localhost", ports.get(1)); //Client2
-			ConnectToMapper map3 = new ConnectToMapper(initCoordinates(3), setDate("2012-05-09 12:54:16"), "localhost", ports.get(2)); //Client3
+			ConnectToMapper map1 = new ConnectToMapper(initCoordinates(1), setDate("2012-05-09 12:54:16"), addr_ports.get(0), Integer.parseInt(addr_ports.get(1))); //Client1
+			ConnectToMapper map2 = new ConnectToMapper(initCoordinates(2), setDate("2012-05-09 12:54:16"), addr_ports.get(2), Integer.parseInt(addr_ports.get(3))); //Client2
+			ConnectToMapper map3 = new ConnectToMapper(initCoordinates(3), setDate("2012-05-09 12:54:16"), addr_ports.get(4), Integer.parseInt(addr_ports.get(5))); //Client3
 			
 			//Starting Threads
 			map1.start();
@@ -106,13 +106,13 @@ public class Master {
 			if (mapperID == 0||mapperID > 3) {
 				System.out.println("No mapper found for this selection!");
 			}
-			int port = mapperID-1;
+			int port = 2*mapperID-1;
 			
-			mapper = new Mapper(ports.get(port));		
+			mapper = new Mapper(Integer.parseInt(addr_ports.get(port)), addr_ports.get(6), Integer.parseInt(addr_ports.get(7)));		
 			mapper.initialize();
 		} 
 		else if (function == 3) {
-			Reducer reducer = new Reducer(ports.get(3));
+			Reducer reducer = new Reducer(Integer.parseInt(addr_ports.get(7)));
 			reducer.initialize();
 		}
 		else {

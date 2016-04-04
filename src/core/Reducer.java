@@ -47,19 +47,21 @@ public class Reducer implements ReduceWorker {
 	public void waitForTasksThread() {	
 		Runnable requestsRunnable = new Runnable() {
 			public void run() {
-				try {
-					input = new ObjectInputStream(client.getInputStream());
-					output = new ObjectOutputStream(client.getOutputStream());
+				synchronized (client) {		
+					try {
+						input = new ObjectInputStream(client.getInputStream());
+						output = new ObjectOutputStream(client.getOutputStream());
+					}
+					catch (IOException e) {
+						System.err.println("Could not initialize IO objects");
+					}
+					try {
+						String msg = "Successfully connected to "+client.getInetAddress()+" on port: "+client.getPort();
+						output.writeObject(msg);
+					} catch (IOException e) {
+						System.err.println("Could not send reply to client");
+					}			
 				}
-				catch (IOException e) {
-					System.err.println("Could not initialize IO objects");
-				}
-				try {
-					String msg = "Successfully connected to "+client.getInetAddress()+" on port: "+client.getPort();
-					output.writeObject(msg);
-				} catch (IOException e) {
-					System.err.println("Could not send reply to client");
-				}			
 			}
 		};
 		Thread request = new Thread(requestsRunnable);

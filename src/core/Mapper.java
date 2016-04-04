@@ -15,22 +15,29 @@ public class Mapper implements MapWorker {
 	
 	private List<ListOfCheckins> Checkins_Area = new ArrayList<ListOfCheckins>();
 	
+	private String reducer_address;
+	
 	private ServerSocket mapper = null;
+	private Socket reducer = null;
 	private Socket client = null;
-	private int mapper_port = 0;
+	
+	private int mapper_port;
+	private int reducer_port;
 	
 	private int cores;
 	
 	private double minX, maxX, minY, maxY = 0; // X is Longtitude, Y is Latitude
 	private String datetime;
 
-	public Mapper(int port) {
-		if (!checkPortAvailability(port)) {
+	public Mapper(int mapper_port, String reducer_address, int reducer_port) {
+		if (!checkPortAvailability(mapper_port)) {
 			System.out.println("Port is in use");
 			System.out.println("Run again the program with another port");
 			System.exit(-1);
 		} else
-			this.mapper_port = port;
+			this.mapper_port = mapper_port;
+		this.reducer_address = reducer_address;
+		this.reducer_port = reducer_port;
 	}
 
 	public Mapper(int port, double minX, double maxX, double minY, double maxY, String datetime) {
@@ -207,7 +214,8 @@ public class Mapper implements MapWorker {
 		//intermediateMap = checkins.stream().parallel().filter(p -> p.getCheckin(0).getPOI().contains("4")).map(p -> p.count(p.getCheckin(0).getPOI())).collect(Collectors.groupingBy(Checkin::getPOI));
 //		numberOfCheckins = lines.stream().parallel().filter(p -> p.getLine().contains("test"))
 //							.map(p -> p.count("test")).reduce((sum, p) -> sum + p).get();
-			
+		
+		sendToReducers(intermediateMap);
 		return intermediateMap;
 	}
 
@@ -218,9 +226,13 @@ public class Mapper implements MapWorker {
 	}
 
 	@Override
-	public void sendToReducers(Map<Integer, Object> toReducer) {
-		// TODO Auto-generated method stub
-
+	public void sendToReducers(Map<String, Integer> toReducer) {
+		try {
+			reducer = new Socket(InetAddress.getByName(reducer_address), reducer_port);
+		}
+		catch (IOException e) {
+			System.err.println("Could not connect to Reducer...");
+		}
 	}
 
 	public boolean checkPortAvailability(int port) {
