@@ -41,7 +41,7 @@ public class ListOfCheckins {
 					checkin.printCheckin();
 		}
 	}
-	  public List<Checkin> getList(){
+	  public List<Checkin> getCheckinsList(){
 	        return this.checkinsList;
 	    }
 	
