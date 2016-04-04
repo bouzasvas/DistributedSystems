@@ -141,10 +141,10 @@ public class Mapper implements MapWorker {
 				maxY = maxY + minYtmp;
 			}
 		}
-		for ( ListOfCheckins check : Checkins_Area) {
-			check.printCheckins();
-			System.out.println("**************************************************");
-		}
+//		for ( ListOfCheckins check : Checkins_Area) {
+//			check.printCheckins();
+//			System.out.println("**************************************************");
+//		}
 	}
 	
 	public ListOfCheckins readFromDB(double CoreMinY, double CoreMaxY) {
@@ -227,11 +227,26 @@ public class Mapper implements MapWorker {
 
 	@Override
 	public void sendToReducers(Map<String, Integer> toReducer) {
+		ObjectOutputStream out = null;
 		try {
 			reducer = new Socket(InetAddress.getByName(reducer_address), reducer_port);
+				//ObjectInputStream in = new ObjectInputStream(reducer.getInputStream());
+				out = new ObjectOutputStream(reducer.getOutputStream());
+				
+				out.writeObject("TEST!");
+				out.flush();				
 		}
 		catch (IOException e) {
 			System.err.println("Could not connect to Reducer...");
+		}
+		finally {
+			try {
+				out.close();
+				reducer.close();
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

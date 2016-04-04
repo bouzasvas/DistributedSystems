@@ -9,8 +9,6 @@ public class Reducer implements ReduceWorker {
 	private int reducerPort;
 	ServerSocket reducer = null;
 	Socket client = null;
-	ObjectInputStream input = null;
-	ObjectOutputStream output = null;
 	
 	public Reducer(int port) {
 		if (checkPortAvailability(port))
@@ -23,11 +21,14 @@ public class Reducer implements ReduceWorker {
 
 	@Override
 	public void initialize() {
-		try {
-			while (true) {
-				reducer = new ServerSocket(reducerPort);
-				System.out.println("Running on local port "+reducer.getLocalPort()+" and waiting for connections..");
-				
+//			while (true) {
+				try {
+					reducer = new ServerSocket(reducerPort);
+					System.out.println("Running on local port "+reducer.getLocalPort()+" and waiting for connections..");
+				} catch (IOException e) {
+					System.err.println("Could not initialize Reduce Server");
+					e.printStackTrace();
+				}
 				try {
 					client = reducer.accept();
 				}
@@ -36,17 +37,15 @@ public class Reducer implements ReduceWorker {
 				}
 				
 				waitForTasksThread();
-			}
-		}
-		catch (IOException e) {
-			
-		}
+//			}
 	}
 
 	@Override
 	public void waitForTasksThread() {	
 		Runnable requestsRunnable = new Runnable() {
 			public void run() {
+				ObjectInputStream input = null;
+				ObjectOutputStream output = null;
 				synchronized (client) {		
 					try {
 						input = new ObjectInputStream(client.getInputStream());
@@ -54,13 +53,24 @@ public class Reducer implements ReduceWorker {
 					}
 					catch (IOException e) {
 						System.err.println("Could not initialize IO objects");
+						e.printStackTrace();
 					}
+					
 					try {
-						String msg = "Successfully connected to "+client.getInetAddress()+" on port: "+client.getPort();
-						output.writeObject(msg);
-					} catch (IOException e) {
-						System.err.println("Could not send reply to client");
-					}			
+						String fromMapper = (String) input.readObject();
+						System.out.println(fromMapper);
+					}
+					catch (IOException | ClassNotFoundException e) {
+						e.printStackTrace();
+					}
+					
+//					try {						
+//						String msg = "Successfully connected to "+client.getInetAddress()+" on port: "+client.getPort();
+//						output.writeObject(msg);
+//						output.flush();
+//					} catch (IOException e) {
+//						System.err.println("Could not send reply to client");
+//					}
 				}
 			}
 		};

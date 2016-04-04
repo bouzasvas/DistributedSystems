@@ -108,6 +108,7 @@ public class Master {
 			}
 			int port = 2*mapperID-1;
 			
+			//mapper = new Mapper(Integer.parseInt(addr_ports.get(port)), "172.16.1.30", Integer.parseInt(addr_ports.get(7)));
 			mapper = new Mapper(Integer.parseInt(addr_ports.get(port)), addr_ports.get(6), Integer.parseInt(addr_ports.get(7)));		
 			mapper.initialize();
 		} 
