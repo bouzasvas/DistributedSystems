@@ -232,14 +232,16 @@ public class Mapper implements MapWorker {
 		
 		try {
 			reducer = new Socket(InetAddress.getByName(reducer_address), reducer_port);
-			in = new ObjectInputStream(reducer.getInputStream());
+			
 			out = new ObjectOutputStream(reducer.getOutputStream());
+			in = new ObjectInputStream(reducer.getInputStream());
 				
 				out.writeObject("TEST!");
 				out.flush();
 				
 				try {
 					String msg = (String) in.readObject();
+					System.out.println(msg);
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}

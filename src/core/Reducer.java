@@ -44,14 +44,13 @@ public class Reducer implements ReduceWorker {
 				ObjectOutputStream output = null;
 				synchronized (client) {		
 					try {
-						input = new ObjectInputStream(client.getInputStream());
-						output = new ObjectOutputStream(client.getOutputStream());
+					output = new ObjectOutputStream(client.getOutputStream());
+					input = new ObjectInputStream(client.getInputStream());
 					}
 					catch (IOException e) {
 						System.err.println("Could not initialize IO objects");
 						e.printStackTrace();
 					}
-					
 					try {
 						System.out.println("XXXXXX");
 						String fromMapper = (String) input.readObject();
