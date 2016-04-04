@@ -207,15 +207,25 @@ public class Mapper implements MapWorker {
 	}
 
 	@Override
-	public Map<String, Integer> map(List<ListOfCheckins> checkins) {		
-		Map<String, Integer> intermediateMap = new HashMap<String, Integer>();
-		int numberOfCheckins;
+	public Map<Object, Long> map(List<ListOfCheckins> checkins) {		
+		Map<Object, Long> intermediateMap = new HashMap<Object, Long>();
+		for(int i=0; i<checkins.size(); i++){
+			Map<Object, Long>tempMap = new HashMap<Object, Long>();
+			ListOfCheckins temp_list=checkins.get(i);
+			tempMap = temp_list.getList().stream().collect(Collectors.groupingBy(o->o.getPOI(), Collectors.counting()));
+			tempMap.forEach(intermediateMap::putIfAbsent);
+		}
+		
+		for(Object key : intermediateMap.keySet())
+		{
+		     System.out.println(key + " : " +intermediateMap.get(key));
+		}
 					
 		//intermediateMap = checkins.stream().parallel().filter(p -> p.getCheckin(0).getPOI().contains("4")).map(p -> p.count(p.getCheckin(0).getPOI())).collect(Collectors.groupingBy(Checkin::getPOI));
 //		numberOfCheckins = lines.stream().parallel().filter(p -> p.getLine().contains("test"))
 //							.map(p -> p.count("test")).reduce((sum, p) -> sum + p).get();
 		
-		sendToReducers(intermediateMap);
+		//sendToReducers(intermediateMap);
 		return intermediateMap;
 	}
 

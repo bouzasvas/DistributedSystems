@@ -41,6 +41,9 @@ public class ListOfCheckins {
 					checkin.printCheckin();
 		}
 	}
+	  public List<Checkin> getList(){
+	        return this.checkinsList;
+	    }
 	
 //	public int count(String poi) {
 //		int count = 0;
