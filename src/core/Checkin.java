@@ -88,7 +88,7 @@ public class Checkin {
 		POI = pOI;
 	}
 
-	public void printCheckin() {
-		System.out.println(POI+"|"+POI_name+"|"+POI_category+"|"+POI_category_id+"|"+Latitude+"|"+Longitude+"|"+datetime+"|"+photoURL);
+	public String printCheckin() { //TO-SEE method return type
+		return POI+"|"+POI_name+"|"+POI_category+"|"+POI_category_id+"|"+Latitude+"|"+Longitude+"|"+datetime+"|"+photoURL;
 	}
 }
