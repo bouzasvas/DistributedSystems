@@ -3,8 +3,8 @@ import java.util.*;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
+//import java.util.stream.Collector;
+//import java.util.stream.Collectors;
 import java.net.*;
 import java.sql.*;
 import java.io.*;
@@ -27,7 +27,7 @@ public class Mapper implements MapWorker {
 	private int cores;
 	
 	private double minX, maxX, minY, maxY = 0; // X is Longtitude, Y is Latitude
-	private String datetime;
+	private String minDatetime, maxDatetime;
 
 	public Mapper(int mapper_port, String reducer_address, int reducer_port) {
 		if (!checkPortAvailability(mapper_port)) {
@@ -40,15 +40,15 @@ public class Mapper implements MapWorker {
 		this.reducer_port = reducer_port;
 	}
 
-	public Mapper(int port, double minX, double maxX, double minY, double maxY, String datetime) {
+	public Mapper(int port, double minX, double maxX, double minY, double maxY, String minDatetime, String maxDatetime) {
 		this.mapper_port = port;
 		setPosition(minX, maxX, minY, maxY);
-		setDate(datetime);
+		setDate(minDatetime, maxDatetime);
 	}
 
-	public void setValues(double minX, double maxX, double minY, double maxY, String datetime) {
+	public void setValues(double minX, double maxX, double minY, double maxY, String minDatetime, String maxDatetime) {
 		setPosition(minX, maxX, minY, maxY);
-		setDate(datetime);
+		setDate(minDatetime, maxDatetime);
 	}
 
 	private void setPosition(double minX, double maxX, double minY, double maxY) {
@@ -58,8 +58,9 @@ public class Mapper implements MapWorker {
 		this.maxY = maxY;
 	}
 
-	private void setDate(String datetime) {
-		this.datetime = datetime;
+	private void setDate(String minDatetime, String maxDatetime) {
+		this.minDatetime = minDatetime;
+		this.maxDatetime = maxDatetime;
 	}
 
 	@Override
@@ -79,16 +80,16 @@ public class Mapper implements MapWorker {
 			System.err.println("Could not initialize server...");
 		}
 		waitForTasksThread();
-		seperateMap(cores);
+		seperateMap(1);
 		map(Checkins_Area);
 	}
 
 	@Override
 	public void waitForTasksThread() {
-		Runnable requestRunnable = new Runnable() {
-			@Override
-			public void run() {
-				synchronized (client) {
+		//Runnable requestRunnable = new Runnable() {
+			//@Override
+			//public void run() {
+			//	synchronized (this) {
 					//here or as class members??
 					ObjectInputStream in = null;
 					ObjectOutputStream out = null;
@@ -103,12 +104,15 @@ public class Mapper implements MapWorker {
 						maxX = in.readDouble();
 						minY = in.readDouble();
 						maxY = in.readDouble();
+						setPosition(minX, maxX, minY, maxY);
 					} catch (IOException e1) {
 						System.err.println("Error loading values...");
 						e1.printStackTrace();
 					}
 					try {
-						datetime = (String) in.readObject();
+						minDatetime = (String) in.readObject();
+						maxDatetime = (String) in.readObject();
+						System.out.println("test");
 					} catch (IOException | ClassNotFoundException e) {
 						System.err.println("Error reading values");
 						e.printStackTrace();
@@ -122,11 +126,11 @@ public class Mapper implements MapWorker {
 							e.printStackTrace();
 						}
 					}
-				}
-			};
-		};
-		Thread request = new Thread(requestRunnable);
-		request.start();
+			//	}
+			//}
+		//};
+		//Thread request = new Thread(requestRunnable);
+		//request.start();
 	}
 	
 	public void seperateMap(int coresNo) {
@@ -141,10 +145,11 @@ public class Mapper implements MapWorker {
 				maxY = maxY + minYtmp;
 			}
 		}
-//		for ( ListOfCheckins check : Checkins_Area) {
-//			check.printCheckins();
-//			System.out.println("**************************************************");
-//		}
+		for ( ListOfCheckins check : Checkins_Area) {
+			check.printCheckins();
+			System.out.println("**************************************************");
+			System.out.println(Checkins_Area.size());
+		}
 	}
 	
 	public ListOfCheckins readFromDB(double CoreMinY, double CoreMaxY) {
@@ -164,7 +169,12 @@ public class Mapper implements MapWorker {
 			pst = con.prepareStatement("select POI, POI_name, POI_category, POI_category_id, latitude, longitude, time, photos" 
 					+" from checkins where (latitude between " + CoreMinY + " and " + CoreMaxY
 					+ ") " + "and (longitude between " + minX + " and " + maxX + ") " + "and time > STR_TO_DATE('"
-					+ datetime + "', '%Y-%m-%d %H:%i:%s') limit 50;");
+					+ minDatetime + "', '%Y-%m-%d %H:%i:%s') limit 50;");
+//			pst = con.prepareStatement("select POI, POI_name, POI_category, POI_category_id, latitude, longitude, time, photos" 
+//					+" from checkins where (latitude between " + CoreMinY + " and " + CoreMaxY
+//					+ ") " + "and (longitude between " + minX + " and " + maxX + ") " + "and time between STR_TO_DATE('"
+//					+ minDatetime + "', '%Y-%m-%d %H:%i:%s') and STR_TO_DATE('"
+//					+ maxDatetime + "', '%Y-%m-%d %H:%i:%s') limit 50;");
 			rs = pst.executeQuery();
 
 			String POI, POI_name, POI_category, POI_category_id, time, photos;
@@ -212,8 +222,8 @@ public class Mapper implements MapWorker {
 		for(int i=0; i<checkins.size(); i++){
 			Map<Object, Long>tempMap = new HashMap<Object, Long>();
 			ListOfCheckins temp_list=checkins.get(i);
-			tempMap = temp_list.getCheckinsList().stream().collect(Collectors.groupingBy(o->o.getPOI(), Collectors.counting()));
-			tempMap.forEach(intermediateMap::putIfAbsent);
+//			tempMap = temp_list.getCheckinsList().stream().collect(Collectors.groupingBy(o->o.getPOI(), Collectors.counting()));
+//			tempMap.forEach(intermediateMap::putIfAbsent);
 		}
 		
 		for(Object key : intermediateMap.keySet())
