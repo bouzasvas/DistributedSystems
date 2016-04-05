@@ -1,5 +1,6 @@
 package core;
 
+import java.util.List;
 import java.util.Map;
 import java.net.*;
 import java.io.*;
@@ -10,7 +11,7 @@ public class Reducer implements ReduceWorker {
 	ServerSocket reducer = null;
 	Socket client = null;
 	
-	Map<Object, Long> fromMapper = null;
+	List<Map<Object, Long>> fromMapper = null;
 	
 	public Reducer(int port) {
 		if (checkPortAvailability(port))
@@ -50,12 +51,20 @@ public class Reducer implements ReduceWorker {
 				e.printStackTrace();
 			}
 			try {
-				fromMapper = (Map<Object, Long>) input.readObject();
+				Map<Object, Long> dataFromMap = (Map<Object, Long>) input.readObject();
+				fromMapper.add(dataFromMap);
 				
-				for(Object key : fromMapper.keySet())
-			        {
-			             System.out.println(key + " : " +fromMapper.get(key));			   
-			        }
+				for (Map<Object, Long> map: fromMapper) {
+					for(Object key : map.keySet())
+				        {
+				             System.out.println(key + " : " +map.get(key));			   
+				        }				
+				}
+				
+//					for(Object key : fromMapper.keySet())
+//			        {
+//			             System.out.println(key + " : " +fromMapper.get(key));			   
+//			        }
 			}
 			catch (IOException | ClassNotFoundException e) {
 				e.printStackTrace();
