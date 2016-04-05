@@ -132,7 +132,7 @@ public class Mapper implements MapWorker {
 				synchronized (client) {
 					receiveDataFromClient();
 					seperateMap(cores);
-					map(Checkins_Area);
+			        sendToReducers(map(Checkins_Area));
 				}
 			}
 		};
@@ -224,28 +224,21 @@ public class Mapper implements MapWorker {
 	}
 
 	@Override
-	public Map<Object, Long> map(List<ListOfCheckins> checkins) {		
-		Map<Object, Long> intermediateMap = new HashMap<Object, Long>();
-		for(int i=0; i<checkins.size(); i++){
-			Map<Object, Long>tempMap = new HashMap<Object, Long>();
-			ListOfCheckins temp_list=checkins.get(i);
-			tempMap = temp_list.getCheckinsList().stream().collect(Collectors.groupingBy(o->o.getPOI(), Collectors.counting()));
-			tempMap.forEach(intermediateMap::putIfAbsent);
-		}
-				
-		for(Object key : intermediateMap.keySet())
-		{
-		     System.out.println(key + " : " +intermediateMap.get(key));
-		     
-		}
-		
-		//intermediateMap = checkins.stream().parallel().filter(p -> p.getCheckin(0).getPOI().contains("4")).map(p -> p.count(p.getCheckin(0).getPOI())).collect(Collectors.groupingBy(Checkin::getPOI));
-//		numberOfCheckins = lines.stream().parallel().filter(p -> p.getLine().contains("test"))
-//							.map(p -> p.count("test")).reduce((sum, p) -> sum + p).get();
-		
-		sendToReducers(intermediateMap);
-		return intermediateMap;
-	}
+	public Map<Object, Long> map(List<ListOfCheckins> checkins) {      
+        Map<Object, Long> intermediateMap = new HashMap<Object, Long>();
+        intermediateMap = checkins.stream().map(p->p.getCheckinsList().stream().collect(Collectors.groupingBy(o->o.getPOI(), Collectors.counting())))
+                .flatMap (map -> map.entrySet().stream())
+                .collect(Collectors.toMap(e -> e.getKey(),
+                                           e -> e.getValue()));   
+//               
+//        for(Object key : intermediateMap.keySet())
+//        {
+//             System.out.println(key + " : " +intermediateMap.get(key));
+//             
+//        }
+  
+        return intermediateMap;
+    }
 
 	@Override
 	public void notifyMaster() {
