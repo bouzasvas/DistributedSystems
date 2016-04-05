@@ -1,5 +1,6 @@
 package core;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.net.*;
@@ -11,7 +12,8 @@ public class Reducer implements ReduceWorker {
 	ServerSocket reducer = null;
 	Socket client = null;
 	
-	List<Map<Object, Long>> fromMapper = null;
+	static int mapsArrived;
+	List<Map<Object, Long>> fromMapper = new ArrayList<Map<Object, Long>>();
 	
 	public Reducer(int port) {
 		if (checkPortAvailability(port))
@@ -26,11 +28,13 @@ public class Reducer implements ReduceWorker {
 	public void initialize() {
 		
 		try {
+			this.mapsArrived = 0;
 			reducer = new ServerSocket(reducerPort);
 			System.out.println("Running on local port "+reducer.getLocalPort()+" and waiting for connections..");
 			
 			while (true) {	
 				client = reducer.accept();
+				mapsArrived++;
 				waitForTasksThread();
 			}
 		}
@@ -50,42 +54,47 @@ public class Reducer implements ReduceWorker {
 				System.err.println("Could not initialize IO objects");
 				e.printStackTrace();
 			}
-			try {
-				Map<Object, Long> dataFromMap = (Map<Object, Long>) input.readObject();
-				fromMapper.add(dataFromMap);
-				
-				for (Map<Object, Long> map: fromMapper) {
-					for(Object key : map.keySet())
-				        {
-				             System.out.println(key + " : " +map.get(key));			   
-				        }				
+			//synchronized (input) {
+				try {
+					@SuppressWarnings("unchecked")
+					Map<Object, Long> dataFromMap = (Map<Object, Long>) input.readObject();
+					fromMapper.add(dataFromMap);
+					
+//						for(Object key : fromMapper.keySet())
+//				        {
+//				             System.out.println(key + " : " +fromMapper.get(key));			   
+//				        }
+				}
+				catch (IOException | ClassNotFoundException e) {
+					e.printStackTrace();
 				}
 				
-//					for(Object key : fromMapper.keySet())
-//			        {
-//			             System.out.println(key + " : " +fromMapper.get(key));			   
-//			        }
-			}
-			catch (IOException | ClassNotFoundException e) {
-				e.printStackTrace();
-			}
-			
-			try {						
-				String msg = "Successfully connected to "+client.getInetAddress()+" on port: "+client.getPort();
-				output.writeObject(msg);
-				output.flush();
-			} catch (IOException e) {
-				System.err.println("Could not send reply to client");
-			}
+				try {						
+					String msg = "Successfully connected to "+client.getInetAddress()+" on port: "+client.getPort();
+					output.writeObject(msg);
+					output.flush();
+				} catch (IOException e) {
+					System.err.println("Could not send reply to client");
+				}
+			//}
 		}
 	
 	@Override
 	public void waitForTasksThread() {	
 		Runnable requestsRunnable = new Runnable() {
 			public void run() {
-				synchronized (client) {
+				//synchronized (client) {
 					receiveDataFromMap();
-				}
+					if (mapsArrived == 3) {
+						for (Map<Object, Long> map: fromMapper) {
+							for(Object key : map.keySet())
+						        {
+						             System.out.println(key + " : " +map.get(key));			   
+						        }				
+						}
+					}
+						//reduce(fromMapper);
+				//}
 			}
 		};
 		Thread request = new Thread(requestsRunnable);
@@ -99,7 +108,7 @@ public class Reducer implements ReduceWorker {
 	}
 
 	@Override
-	public Map<Integer, Object> reduce(int key, Object value) {
+	public Map<Integer, Object> reduce(List<Map<Object, Long>> listOfMaps) {
 		// TODO Auto-generated method stub
 		return null;
 	}

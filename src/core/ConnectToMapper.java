@@ -102,8 +102,6 @@ public class ConnectToMapper extends Thread {
 		}	
 
 	public void run() { //this method runs the thread
-		synchronized (this) {
 			connect();
-		}
 	}
 }

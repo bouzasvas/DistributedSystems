@@ -11,7 +11,7 @@ import java.io.*;
 
 public class Mapper implements MapWorker {
 
-	//private Map<String, Integer> checkins = null;
+	Scanner input = new Scanner(System.in);
 	
 	private List<ListOfCheckins> Checkins_Area = new ArrayList<ListOfCheckins>();
 	
@@ -131,8 +131,15 @@ public class Mapper implements MapWorker {
 			public void run() {
 				synchronized (client) {
 					receiveDataFromClient();
+					System.out.println("Values have received succefully!");
+					
 					seperateMap(cores);
+					System.out.println("Map Proccess is ready to begin......");
+					System.out.println("Press a key to send results to Reducer...");
+					input.nextLine();
+					
 			        sendToReducers(map(Checkins_Area));
+			        System.out.println("Map Complete! The intermediates results will be sent to Reducer.....");
 				}
 			}
 		};
@@ -155,7 +162,6 @@ public class Mapper implements MapWorker {
 		}
 		for ( ListOfCheckins check : Checkins_Area) {
 			check.printCheckins();
-			System.out.println("**************************************************");
 		}
 	}
 	
