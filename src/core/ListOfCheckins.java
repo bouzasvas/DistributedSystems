@@ -31,7 +31,7 @@ public class ListOfCheckins {
 	
 	public void printCheckins() {
 		for (Checkin checkin : checkinsList ) {
-			checkin.printCheckin();
+			checkin.ShowCheckin();
 		}
 	}
 

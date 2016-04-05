@@ -79,7 +79,7 @@ public class Mapper implements MapWorker {
 		} catch (IOException e) {
 			System.err.println("Could not initialize server...");
 		}
-		waitForTasksThread();
+		waitForTasksThread(); //Thread or NOT??
 		seperateMap(1);
 		map(Checkins_Area);
 	}
@@ -126,9 +126,9 @@ public class Mapper implements MapWorker {
 							e.printStackTrace();
 						}
 					}
-			//	}
-			//}
-		//};
+				//}
+		//	}
+	//	};
 		//Thread request = new Thread(requestRunnable);
 		//request.start();
 	}
@@ -148,7 +148,6 @@ public class Mapper implements MapWorker {
 		for ( ListOfCheckins check : Checkins_Area) {
 			check.printCheckins();
 			System.out.println("**************************************************");
-			System.out.println(Checkins_Area.size());
 		}
 	}
 	
