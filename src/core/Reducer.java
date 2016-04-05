@@ -36,37 +36,40 @@ public class Reducer implements ReduceWorker {
 		}
 	}
 
+	public void receiveDataFromMap() {
+		ObjectInputStream input = null;
+		ObjectOutputStream output = null;	
+			try {
+			output = new ObjectOutputStream(client.getOutputStream());
+			input = new ObjectInputStream(client.getInputStream());
+			}
+			catch (IOException e) {
+				System.err.println("Could not initialize IO objects");
+				e.printStackTrace();
+			}
+			try {
+				String fromMapper = (String) input.readObject();
+				System.out.println(fromMapper);
+			}
+			catch (IOException | ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+			
+			try {						
+				String msg = "Successfully connected to "+client.getInetAddress()+" on port: "+client.getPort();
+				output.writeObject(msg);
+				output.flush();
+			} catch (IOException e) {
+				System.err.println("Could not send reply to client");
+			}
+		}
+	
 	@Override
 	public void waitForTasksThread() {	
 		Runnable requestsRunnable = new Runnable() {
 			public void run() {
-				ObjectInputStream input = null;
-				ObjectOutputStream output = null;
-				synchronized (client) {		
-					try {
-					output = new ObjectOutputStream(client.getOutputStream());
-					input = new ObjectInputStream(client.getInputStream());
-					}
-					catch (IOException e) {
-						System.err.println("Could not initialize IO objects");
-						e.printStackTrace();
-					}
-					try {
-						System.out.println("XXXXXX");
-						String fromMapper = (String) input.readObject();
-						System.out.println(fromMapper);
-					}
-					catch (IOException | ClassNotFoundException e) {
-						e.printStackTrace();
-					}
-					
-					try {						
-						String msg = "Successfully connected to "+client.getInetAddress()+" on port: "+client.getPort();
-						output.writeObject(msg);
-						output.flush();
-					} catch (IOException e) {
-						System.err.println("Could not send reply to client");
-					}
+				synchronized (client) {
+					receiveDataFromMap();
 				}
 			}
 		};

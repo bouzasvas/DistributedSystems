@@ -243,7 +243,7 @@ public class Mapper implements MapWorker {
 //		numberOfCheckins = lines.stream().parallel().filter(p -> p.getLine().contains("test"))
 //							.map(p -> p.count("test")).reduce((sum, p) -> sum + p).get();
 		
-		//sendToReducers(intermediateMap);
+		sendToReducers(intermediateMap);
 		return intermediateMap;
 	}
 
@@ -254,7 +254,7 @@ public class Mapper implements MapWorker {
 	}
 
 	@Override
-	public void sendToReducers(Map<String, Integer> toReducer) {
+	public void sendToReducers(Map<Object, Long> intermediateMap) {
 		ObjectInputStream in = null;
 		ObjectOutputStream out = null;
 		
