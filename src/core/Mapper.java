@@ -3,8 +3,8 @@ import java.util.*;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-//import java.util.stream.Collector;
-//import java.util.stream.Collectors;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.net.*;
 import java.sql.*;
 import java.io.*;
@@ -80,7 +80,7 @@ public class Mapper implements MapWorker {
 			System.err.println("Could not initialize server...");
 		}
 		waitForTasksThread(); //Thread or NOT??
-		seperateMap(1);
+		seperateMap(cores);
 		map(Checkins_Area);
 	}
 
@@ -112,7 +112,6 @@ public class Mapper implements MapWorker {
 					try {
 						minDatetime = (String) in.readObject();
 						maxDatetime = (String) in.readObject();
-						System.out.println("test");
 					} catch (IOException | ClassNotFoundException e) {
 						System.err.println("Error reading values");
 						e.printStackTrace();
@@ -137,12 +136,12 @@ public class Mapper implements MapWorker {
 		if (coresNo == 1)
 			Checkins_Area.add(readFromDB(minY, maxY));
 		else {
-			maxY = ((maxY - minY)/coresNo)+minY;
+			double coreLength = (maxY - minY)/coresNo;
+			maxY = coreLength+minY;
 			for (int k = 1; k <= coresNo; k++) {
 				Checkins_Area.add(readFromDB(minY, maxY));
-				double minYtmp = minY;
 				minY = maxY;
-				maxY = maxY + minYtmp;
+				maxY = maxY + coreLength;
 			}
 		}
 		for ( ListOfCheckins check : Checkins_Area) {
@@ -165,15 +164,15 @@ public class Mapper implements MapWorker {
 
 		try {
 			con = DriverManager.getConnection(url, user, password);
-			pst = con.prepareStatement("select POI, POI_name, POI_category, POI_category_id, latitude, longitude, time, photos" 
-					+" from checkins where (latitude between " + CoreMinY + " and " + CoreMaxY
-					+ ") " + "and (longitude between " + minX + " and " + maxX + ") " + "and time > STR_TO_DATE('"
-					+ minDatetime + "', '%Y-%m-%d %H:%i:%s') limit 50;");
 //			pst = con.prepareStatement("select POI, POI_name, POI_category, POI_category_id, latitude, longitude, time, photos" 
 //					+" from checkins where (latitude between " + CoreMinY + " and " + CoreMaxY
-//					+ ") " + "and (longitude between " + minX + " and " + maxX + ") " + "and time between STR_TO_DATE('"
-//					+ minDatetime + "', '%Y-%m-%d %H:%i:%s') and STR_TO_DATE('"
-//					+ maxDatetime + "', '%Y-%m-%d %H:%i:%s') limit 50;");
+//					+ ") " + "and (longitude between " + minX + " and " + maxX + ") " + "and time > STR_TO_DATE('"
+//					+ minDatetime + "', '%Y-%m-%d %H:%i:%s') limit 50;");
+			pst = con.prepareStatement("select POI, POI_name, POI_category, POI_category_id, latitude, longitude, time, photos" 
+					+" from checkins where (latitude between " + CoreMinY + " and " + CoreMaxY
+					+ ") " + "and (longitude between " + minX + " and " + maxX + ") " + "and time between STR_TO_DATE('"
+					+ minDatetime + "', '%Y-%m-%d %H:%i:%s') and STR_TO_DATE('"
+					+ maxDatetime + "', '%Y-%m-%d %H:%i:%s') limit 50;");
 			rs = pst.executeQuery();
 
 			String POI, POI_name, POI_category, POI_category_id, time, photos;

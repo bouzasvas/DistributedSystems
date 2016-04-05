@@ -70,8 +70,8 @@ public class Master {
 	}
 	
 	private static String[] initDate () {
-		String minDate = "2012-05-09 12:54:16";
-		String maxDate = "2012-05-09 12:54:16";
+		String minDate = "2012-05-09 00:00:00";
+		String maxDate = "2012-11-06 23:59:00";
 		String[] dates = {minDate, maxDate};
 		return dates;
 	}
