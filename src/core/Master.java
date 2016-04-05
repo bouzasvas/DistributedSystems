@@ -69,8 +69,11 @@ public class Master {
 			return coordinates;
 	}
 	
-	private static String setDate(String date) {
-		return date;
+	private static String[] initDate () {
+		String minDate = "2012-05-09 00:00:00";
+		String maxDate = "2012-11-06 23:59:00";
+		String[] dates = {minDate, maxDate};
+		return dates;
 	}
 	
 	public static void welcomeMsg() { //Prints welcome messages program starts
@@ -90,9 +93,9 @@ public class Master {
 
 		if (function == 1) {			
 			//ConnectToMapper is like Clients
-			ConnectToMapper map1 = new ConnectToMapper(initCoordinates(1), setDate("2012-05-09 12:54:16"), addr_ports.get(0), Integer.parseInt(addr_ports.get(1))); //Client1
-			ConnectToMapper map2 = new ConnectToMapper(initCoordinates(2), setDate("2012-05-09 12:54:16"), addr_ports.get(2), Integer.parseInt(addr_ports.get(3))); //Client2
-			ConnectToMapper map3 = new ConnectToMapper(initCoordinates(3), setDate("2012-05-09 12:54:16"), addr_ports.get(4), Integer.parseInt(addr_ports.get(5))); //Client3
+			ConnectToMapper map1 = new ConnectToMapper(initCoordinates(1), initDate(), addr_ports.get(0), Integer.parseInt(addr_ports.get(1))); //Client1
+			ConnectToMapper map2 = new ConnectToMapper(initCoordinates(2), initDate(), addr_ports.get(2), Integer.parseInt(addr_ports.get(3))); //Client2
+			ConnectToMapper map3 = new ConnectToMapper(initCoordinates(3), initDate(), addr_ports.get(4), Integer.parseInt(addr_ports.get(5))); //Client3
 			
 			//Starting Threads
 			map1.start();

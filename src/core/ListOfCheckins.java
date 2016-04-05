@@ -31,7 +31,7 @@ public class ListOfCheckins {
 	
 	public void printCheckins() {
 		for (Checkin checkin : checkinsList ) {
-			checkin.printCheckin();
+			checkin.ShowCheckin();
 		}
 	}
 
@@ -41,9 +41,21 @@ public class ListOfCheckins {
 					checkin.printCheckin();
 		}
 	}
-	  public List<Checkin> getCheckinsList(){
-	        return this.checkinsList;
-	    }
+	
+	public List<Checkin> getCheckinsList(){
+        return this.checkinsList;
+    }
+	
+	public String[] getPOIs() {
+		String[] pois = new String[checkinsList.size()];
+		int index = 0;
+		
+		for (Checkin ch: checkinsList) {
+			pois[index] = ch.getPOI();
+			index++;
+		}
+		return pois;
+	}
 	
 //	public int count(String poi) {
 //		int count = 0;

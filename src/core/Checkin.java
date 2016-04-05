@@ -91,4 +91,8 @@ public class Checkin {
 	public String printCheckin() { //TO-SEE method return type
 		return POI+"|"+POI_name+"|"+POI_category+"|"+POI_category_id+"|"+Latitude+"|"+Longitude+"|"+datetime+"|"+photoURL;
 	}
+	
+	public void ShowCheckin() { //TO-SEE method return type
+		System.out.println(POI+"|"+POI_name+"|"+POI_category+"|"+POI_category_id+"|"+Latitude+"|"+Longitude+"|"+datetime+"|"+photoURL);
+	}
 }
