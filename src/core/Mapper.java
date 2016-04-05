@@ -173,15 +173,11 @@ public class Mapper implements MapWorker {
 
 		try {
 			con = DriverManager.getConnection(url, user, password);
-//			pst = con.prepareStatement("select POI, POI_name, POI_category, POI_category_id, latitude, longitude, time, photos" 
-//					+" from checkins where (latitude between " + CoreMinY + " and " + CoreMaxY
-//					+ ") " + "and (longitude between " + minX + " and " + maxX + ") " + "and time > STR_TO_DATE('"
-//					+ minDatetime + "', '%Y-%m-%d %H:%i:%s') limit 50;");
 			pst = con.prepareStatement("select POI, POI_name, POI_category, POI_category_id, latitude, longitude, time, photos" 
 					+" from checkins where (latitude between " + CoreMinY + " and " + CoreMaxY
 					+ ") " + "and (longitude between " + minX + " and " + maxX + ") " + "and time between STR_TO_DATE('"
 					+ minDatetime + "', '%Y-%m-%d %H:%i:%s') and STR_TO_DATE('"
-					+ maxDatetime + "', '%Y-%m-%d %H:%i:%s') limit 50;");
+					+ maxDatetime + "', '%Y-%m-%d %H:%i:%s') limit 10;");
 			rs = pst.executeQuery();
 
 			String POI, POI_name, POI_category, POI_category_id, time, photos;
@@ -227,8 +223,8 @@ public class Mapper implements MapWorker {
 	public Map<Object, Long> map(List<ListOfCheckins> checkins) {
 		Map<Object, Long> intermediateMap = new HashMap<Object, Long>();
 		
-		intermediateMap = checkins.stream().parallel().map(p->p.getCheckinsList().stream().collect(Collectors.groupingBy(o->o.getPOI(), Collectors.counting())))
-                .flatMap (map -> map.entrySet().stream())
+		intermediateMap = checkins.stream().parallel().map(p->p.getCheckinsList().stream().collect(Collectors.groupingBy(o-> o.getPOI(), Collectors.counting())))
+                .flatMap (map -> map.entrySet().stream()).distinct() //added distinct()
                 .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
             
         for(Object key : intermediateMap.keySet())
