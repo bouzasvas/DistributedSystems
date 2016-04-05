@@ -3,8 +3,8 @@ import java.util.*;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-//import java.util.stream.Collector;
-//import java.util.stream.Collectors;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.net.*;
 import java.sql.*;
 import java.io.*;
@@ -212,8 +212,8 @@ public class Mapper implements MapWorker {
 		for(int i=0; i<checkins.size(); i++){
 			Map<Object, Long>tempMap = new HashMap<Object, Long>();
 			ListOfCheckins temp_list=checkins.get(i);
-//			tempMap = temp_list.getCheckinsList().stream().collect(Collectors.groupingBy(o->o.getPOI(), Collectors.counting()));
-//			tempMap.forEach(intermediateMap::putIfAbsent);
+			tempMap = temp_list.getCheckinsList().stream().collect(Collectors.groupingBy(o->o.getPOI(), Collectors.counting()));
+			tempMap.forEach(intermediateMap::putIfAbsent);
 		}
 		
 		for(Object key : intermediateMap.keySet())
