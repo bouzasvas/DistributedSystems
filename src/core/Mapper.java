@@ -70,66 +70,75 @@ public class Mapper implements MapWorker {
 			System.out.println("Mapper has "+cores+" cores");
 			
 			mapper = new ServerSocket(mapper_port);
-			client = mapper.accept();
 			
-			ObjectOutputStream ack = new ObjectOutputStream(client.getOutputStream());
-			ack.writeObject("Succesfully connected to "+client.getInetAddress()+
-					" at port "+client.getLocalPort());
+			while (true) {
+				client = mapper.accept();
+				
+				ObjectOutputStream ack = new ObjectOutputStream(client.getOutputStream());
+				ack.writeObject("Succesfully connected to "+client.getInetAddress()+
+						" at port "+client.getLocalPort());
+				
+				waitForTasksThread();
+			}
 			
 		} catch (IOException e) {
 			System.err.println("Could not initialize server...");
 		}
-		waitForTasksThread(); //Thread or NOT??
-		seperateMap(cores);
-		map(Checkins_Area);
 	}
-
+	
+	public void receiveDataFromClient() {
+		ObjectInputStream in = null;
+		ObjectOutputStream out = null;
+		try {
+			in = new ObjectInputStream(client.getInputStream());
+			out = new ObjectOutputStream(client.getOutputStream());
+		} catch (IOException e3) {
+			System.err.println("Could not initialize streams...");
+		}
+		try {
+			minX = in.readDouble();
+			maxX = in.readDouble();
+			minY = in.readDouble();
+			maxY = in.readDouble();
+			setPosition(minX, maxX, minY, maxY);
+		} catch (IOException e1) {
+			System.err.println("Error loading values...");
+			e1.printStackTrace();
+		}
+		try {
+			minDatetime = (String) in.readObject();
+			maxDatetime = (String) in.readObject();
+		} catch (IOException | ClassNotFoundException e) {
+			System.err.println("Error reading values");
+			e.printStackTrace();
+		} finally {
+			try {
+				//Maybe not close here!
+				in.close();
+				out.close();
+				client.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	@Override
 	public void waitForTasksThread() {
-		//Runnable requestRunnable = new Runnable() {
-			//@Override
-			//public void run() {
-			//	synchronized (this) {
-					//here or as class members??
-					ObjectInputStream in = null;
-					ObjectOutputStream out = null;
-					try {
-						in = new ObjectInputStream(client.getInputStream());
-						out = new ObjectOutputStream(client.getOutputStream());
-					} catch (IOException e3) {
-						System.err.println("Could not initialize streams...");
-					}
-					try {
-						minX = in.readDouble();
-						maxX = in.readDouble();
-						minY = in.readDouble();
-						maxY = in.readDouble();
-						setPosition(minX, maxX, minY, maxY);
-					} catch (IOException e1) {
-						System.err.println("Error loading values...");
-						e1.printStackTrace();
-					}
-					try {
-						minDatetime = (String) in.readObject();
-						maxDatetime = (String) in.readObject();
-					} catch (IOException | ClassNotFoundException e) {
-						System.err.println("Error reading values");
-						e.printStackTrace();
-					} finally {
-						try {
-							//Maybe not close here!
-							in.close();
-							out.close();
-							client.close();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-				//}
-		//	}
-	//	};
-		//Thread request = new Thread(requestRunnable);
-		//request.start();
+		Runnable threadRunnable = new Runnable() {
+				
+			@Override
+			public void run() {
+				synchronized (client) {
+					receiveDataFromClient();
+					seperateMap(cores);
+					map(Checkins_Area);
+				}
+			}
+		};
+		
+		Thread operation = new Thread(threadRunnable);
+		operation.start();		
 	}
 	
 	public void seperateMap(int coresNo) {
