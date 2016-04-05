@@ -62,6 +62,12 @@ public class Mapper implements MapWorker {
 		this.minDatetime = minDatetime;
 		this.maxDatetime = maxDatetime;
 	}
+	
+	public void printCheckinsArea() {
+		for ( ListOfCheckins check : Checkins_Area) {
+			check.printCheckins();
+		}
+	}
 
 	@Override
 	public void initialize() {
@@ -131,15 +137,15 @@ public class Mapper implements MapWorker {
 			public void run() {
 				synchronized (client) {
 					receiveDataFromClient();
-					System.out.println("Values have received succefully!");
+					System.out.println("\nValues have received succefully!");
 					
 					seperateMap(cores);
-					System.out.println("Map Proccess is ready to begin......");
+					System.out.println("\nMap Proccess is ready to begin......");
 					System.out.println("Press a key to send results to Reducer...");
 					input.nextLine();
 					
 			        sendToReducers(map(Checkins_Area));
-			        System.out.println("Map Complete! The intermediates results will be sent to Reducer.....");
+			        System.out.println("\nMap Complete! The intermediates results will be sent to Reducer.....\n");
 				}
 			}
 		};
@@ -160,9 +166,7 @@ public class Mapper implements MapWorker {
 				maxY = maxY + coreLength;
 			}
 		}
-		for ( ListOfCheckins check : Checkins_Area) {
-			check.printCheckins();
-		}
+	//	printCheckinsArea();
 	}
 	
 	public ListOfCheckins readFromDB(double CoreMinY, double CoreMaxY) {
@@ -198,7 +202,6 @@ public class Mapper implements MapWorker {
 				longitude = rs.getDouble(6);
 				time = rs.getString(7);
 				photos = rs.getString(8);
-				//checkins.put(tmp, 1);
 				checkins.addCheckin(POI, POI_name, POI_category, POI_category_id, longitude, latitude, time, photos);
 			}
 		} catch (SQLException ex) {
@@ -235,8 +238,7 @@ public class Mapper implements MapWorker {
             
         for(Object key : intermediateMap.keySet())
         {
-             System.out.println(key + " : " +intermediateMap.get(key));
-             
+             System.out.println(key + " : " +intermediateMap.get(key));       
         }
 		
 		return intermediateMap;
@@ -264,7 +266,7 @@ public class Mapper implements MapWorker {
 				
 				try {
 					String msg = (String) in.readObject();
-					System.out.println(msg);
+					System.out.println("\n"+msg);
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}

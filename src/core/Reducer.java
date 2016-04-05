@@ -56,6 +56,7 @@ public class Reducer implements ReduceWorker {
 			}
 			//synchronized (input) {
 				try {
+					System.out.println("Getting results from Mapper "+mapsArrived);
 					@SuppressWarnings("unchecked")
 					Map<Object, Long> dataFromMap = (Map<Object, Long>) input.readObject();
 					fromMapper.add(dataFromMap);
