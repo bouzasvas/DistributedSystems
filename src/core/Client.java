@@ -1,10 +1,18 @@
 package core;
 
 import java.util.Scanner;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Client {
+	
+	private ServerSocket fromReducer = null;
+	private Socket reducer = null;
 	
 	private List<String> addr_ports = null;
 	
@@ -16,6 +24,40 @@ public class Client {
 	public Client(List<String> addr_ports) {
 		this.addr_ports = addr_ports;
 		selectInput();
+	}
+	
+	public void initServer() {
+		ObjectInputStream in = null;
+		ObjectOutputStream out = null;
+		
+		try {
+			int port = Integer.parseInt(addr_ports.get(9));
+			fromReducer = new ServerSocket(port);
+			reducer = fromReducer.accept();
+			
+			out = new ObjectOutputStream(reducer.getOutputStream());
+			in = new ObjectInputStream(reducer.getInputStream());
+			
+			String msg = (String) in.readObject();
+			System.out.println(msg);
+		}
+		catch (IOException e) {
+			System.err.println("Could not initialize client server...");
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			System.err.println("Could not get the message from Reducer...");
+			e.printStackTrace();
+		}
+		finally {
+			try {
+				out.close();
+				in.close();
+				reducer.close();
+			}
+			catch (IOException e) {
+				System.err.println("Could not close streams...");
+			}
+		}
 	}
 	
 	public void requestAndConnect() {

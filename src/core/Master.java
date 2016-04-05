@@ -52,6 +52,7 @@ public class Master {
 		if (function == 1) {		
 			Client client = new Client(addr_ports);
 			client.requestAndConnect();
+			client.initServer();
 		}
 		
 		else if (function == 2) {
@@ -69,7 +70,7 @@ public class Master {
 		} 
 		
 		else if (function == 3) {
-			Reducer reducer = new Reducer(Integer.parseInt(addr_ports.get(7)));
+			Reducer reducer = new Reducer(Integer.parseInt(addr_ports.get(7)), addr_ports.get(8), Integer.parseInt(addr_ports.get(9)));
 			reducer.initialize();
 		}
 		

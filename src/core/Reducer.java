@@ -1,12 +1,16 @@
 package core;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.net.*;
 import java.io.*;
 
 public class Reducer implements ReduceWorker {
+	
+	private String clientAddress;
+	private int clientPort;
 	
 	private int reducerPort;
 	ServerSocket reducer = null;
@@ -19,6 +23,17 @@ public class Reducer implements ReduceWorker {
 		if (checkPortAvailability(port))
 			this.reducerPort = port;
 		else {
+			System.out.println("Port "+port+" is in use!");
+			System.exit(-1);
+		}
+	}
+	
+	public Reducer(int port, String clientAddress, int clientPort) {
+		if (checkPortAvailability(port)) {
+			this.reducerPort = port;
+			this.clientAddress = clientAddress;
+			this.clientPort = clientPort;
+		} else {
 			System.out.println("Port "+port+" is in use!");
 			System.exit(-1);
 		}
@@ -56,7 +71,6 @@ public class Reducer implements ReduceWorker {
 			}
 			//synchronized (input) {
 				try {
-					System.out.println("Getting results from Mapper "+mapsArrived);
 					@SuppressWarnings("unchecked")
 					Map<Object, Long> dataFromMap = (Map<Object, Long>) input.readObject();
 					fromMapper.add(dataFromMap);
@@ -84,7 +98,7 @@ public class Reducer implements ReduceWorker {
 	public void waitForTasksThread() {	
 		Runnable requestsRunnable = new Runnable() {
 			public void run() {
-				//synchronized (client) {
+				System.out.println("Getting results from Mapper "+mapsArrived+"...\n");
 					receiveDataFromMap();
 					if (mapsArrived == 3) {
 						for (Map<Object, Long> map: fromMapper) {
@@ -93,9 +107,9 @@ public class Reducer implements ReduceWorker {
 						             System.out.println(key + " : " +map.get(key));			   
 						        }				
 						}
+						//sendResults(reduce(fromMapper));
 					}
-						//reduce(fromMapper);
-				//}
+					sendResults(reduce(fromMapper));
 			}
 		};
 		Thread request = new Thread(requestsRunnable);
@@ -111,13 +125,40 @@ public class Reducer implements ReduceWorker {
 	@Override
 	public Map<Integer, Object> reduce(List<Map<Object, Long>> listOfMaps) {
 		// TODO Auto-generated method stub
-		return null;
+		Map<Integer, Object> toClient = new HashMap<Integer, Object>();
+		
+		return toClient;
 	}
 
 	@Override
 	public void sendResults(Map<Integer, Object> toClient) {
-		// TODO Auto-generated method stub
+		Socket toClientSocket = null;
+		ObjectInputStream in = null;
+		ObjectOutputStream out = null;
 		
+		try {
+			toClientSocket = new Socket(InetAddress.getByName(clientAddress), clientPort);
+			out = new ObjectOutputStream(toClientSocket.getOutputStream());
+			in = new ObjectInputStream(toClientSocket.getInputStream());
+			
+			out.writeObject("Hello from Reducer");
+			out.flush();
+		}
+		catch (IOException e) {
+			System.err.println("Could not connect to client...");
+			e.printStackTrace();
+		}
+		finally {
+			if (!(toClientSocket.getInetAddress().equals("localhost"))) {
+				try {
+					in.close();
+					out.close();
+					toClientSocket.close();
+				} catch (IOException e) {
+					System.err.println("Could not close streams...");
+				}
+			}
+		}
 	}
 	
 	public boolean checkPortAvailability(int port) {
