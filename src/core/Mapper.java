@@ -229,18 +229,25 @@ public class Mapper implements MapWorker {
 	}
 
 	@Override
-	public List<Map.Entry<Object, Long>> map(List<ListOfCheckins> checkins) {
+	public Map<Object, Long> map(List<ListOfCheckins> checkins) {
+		Map<Object, Long> intermediateMap = new HashMap<Object, Long>();
+		
 		List<Map.Entry<Object, Long>> intermediateList = new ArrayList<Map.Entry<Object, Long>>();
 		
-		intermediateList = checkins.stream().parallel().map(p->p.getCheckinsList().stream().collect(Collectors.groupingBy(o-> o.getPOI(), Collectors.counting())))
-                .flatMap (map -> map.entrySet().stream()).collect(Collectors.toList());
+//		intermediateList = checkins.stream().parallel().map(p->p.getCheckinsList().stream().collect(Collectors.groupingBy(o-> o.getPOI(), Collectors.counting())))
+//                .flatMap (map -> map.entrySet().stream()).collect(Collectors.toList());
 		
-        for(int i=0; i<intermediateList.size(); i++){
-        	System.out.println(intermediateList.get(i));
-        }    
+		intermediateList = checkins.stream().parallel().map(p->p.getCheckinsList().stream().collect(Collectors.groupingBy(o-> o.getPOI(), Collectors.counting())))
+              .flatMap (map -> map.entrySet().stream()).collect(Collectors.toList());
+		
+        for(Map.Entry<Object, Long> item : intermediateList){
+        	intermediateMap.put(item.getKey(), item.getValue());
+        }
+        
+        System.out.println(intermediateMap);
 
 		
-		return intermediateList;
+		return intermediateMap;
     }
 
 	@Override
@@ -250,7 +257,7 @@ public class Mapper implements MapWorker {
 	}
 
 	@Override
-	public void sendToReducers(List<Map.Entry<Object, Long>> toReducer) {
+	public void sendToReducers(Map<Object, Long> toReducer) {
 		ObjectInputStream in = null;
 		ObjectOutputStream out = null;
 		

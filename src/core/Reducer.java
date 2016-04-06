@@ -18,7 +18,8 @@ public class Reducer implements ReduceWorker {
 	Socket client = null;
 	
 	static int mapsArrived;
-	List<List<Map.Entry<Object, Long>>> fromMapper = new ArrayList<List<Map.Entry<Object, Long>>>();
+	
+	List<Map<Object, Long>> fromMapper = new ArrayList<Map<Object,Long>>();
 	
 	public Reducer(int port) {
 		if (checkPortAvailability(port))
@@ -72,8 +73,7 @@ public class Reducer implements ReduceWorker {
 			}
 			//synchronized (input) {
 				try {
-					@SuppressWarnings("unchecked")
-					List<Map.Entry<Object, Long>> dataFromMap = (List<Entry<Object, Long>>) input.readObject();
+					Map<Object, Long> dataFromMap = (Map<Object, Long>) input.readObject();
 					fromMapper.add(dataFromMap);
 					
 //						for(Object key : fromMapper.keySet())
@@ -103,13 +103,11 @@ public class Reducer implements ReduceWorker {
 					receiveDataFromMap();
 					if (mapsArrived == 3) {
 						for(int i=0; i<fromMapper.size(); i++){
-							List<Map.Entry<Object, Long>> tmpList = fromMapper.get(i);
-							for (int j = 0; j <tmpList.size(); j++)
-								System.out.println(tmpList.get(j));
+							System.out.println(fromMapper.get(i));
 				        }
-						sendResults(reduce(fromMapper));
+						//sendResults(reduce(fromMapper));
 					}
-					//sendResults(reduce(fromMapper));
+					sendResults(reduce(fromMapper));
 			}
 		};
 		Thread request = new Thread(requestsRunnable);
@@ -123,7 +121,7 @@ public class Reducer implements ReduceWorker {
 	}
 
 	@Override
-	public Map<Integer, Object> reduce(List<List<Map.Entry<Object, Long>>> listOfMaps) {
+	public Map<Integer, Object> reduce(List<Map<Object, Long>> listOfMaps) {
 		// TODO Auto-generated method stub
 		Map<Integer, Object> toClient = new HashMap<Integer, Object>();
 		
