@@ -144,8 +144,7 @@ public class Mapper implements MapWorker {
 					System.out.println("Press a key to send results to Reducer...");
 					input.nextLine();
 					
-			        //sendToReducers(map(Checkins_Area));
-					lst(Checkins_Area);
+			        sendToReducers(map(Checkins_Area));
 			        System.out.println("\nMap Complete! The intermediate results will be sent to Reducer.....\n");
 				}
 			}
@@ -230,8 +229,8 @@ public class Mapper implements MapWorker {
 	}
 
 	@Override
-	public List<Object> lst(List<ListOfCheckins> checkins) {
-		List<Object> intermediateList = new ArrayList<Object>();
+	public List<Map.Entry<Object, Long>> map(List<ListOfCheckins> checkins) {
+		List<Map.Entry<Object, Long>> intermediateList = new ArrayList<Map.Entry<Object, Long>>();
 		
 		intermediateList = checkins.stream().parallel().map(p->p.getCheckinsList().stream().collect(Collectors.groupingBy(o-> o.getPOI(), Collectors.counting())))
                 .flatMap (map -> map.entrySet().stream()).collect(Collectors.toList());
@@ -251,7 +250,7 @@ public class Mapper implements MapWorker {
 	}
 
 	@Override
-	public void sendToReducers(Map<Object, Long> toReducer) {
+	public void sendToReducers(List<Map.Entry<Object, Long>> toReducer) {
 		ObjectInputStream in = null;
 		ObjectOutputStream out = null;
 		
