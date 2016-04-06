@@ -144,7 +144,8 @@ public class Mapper implements MapWorker {
 					System.out.println("Press a key to send results to Reducer...");
 					input.nextLine();
 					
-			        sendToReducers(map(Checkins_Area));
+			        //sendToReducers(map(Checkins_Area));
+					lst(Checkins_Area);
 			        System.out.println("\nMap Complete! The intermediate results will be sent to Reducer.....\n");
 				}
 			}
@@ -229,19 +230,18 @@ public class Mapper implements MapWorker {
 	}
 
 	@Override
-	public Map<Object, Long> map(List<ListOfCheckins> checkins) {
-		Map<Object, Long> intermediateMap = new HashMap<Object, Long>();
+	public List<Object> lst(List<ListOfCheckins> checkins) {
+		List<Object> intermediateList = new ArrayList<Object>();
 		
-		intermediateMap = checkins.stream().parallel().map(p->p.getCheckinsList().stream().collect(Collectors.groupingBy(o-> o.getPOI(), Collectors.counting())))
-                .flatMap (map -> map.entrySet().stream()).distinct() //added distinct()
-                .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
-            
-        for(Object key : intermediateMap.keySet())
-        {
-             System.out.println(key + " : " +intermediateMap.get(key));       
-        }
+		intermediateList = checkins.stream().parallel().map(p->p.getCheckinsList().stream().collect(Collectors.groupingBy(o-> o.getPOI(), Collectors.counting())))
+                .flatMap (map -> map.entrySet().stream()).collect(Collectors.toList());
 		
-		return intermediateMap;
+        for(int i=0; i<intermediateList.size(); i++){
+        	System.out.println(intermediateList.get(i));
+        }    
+
+		
+		return intermediateList;
     }
 
 	@Override
