@@ -105,9 +105,9 @@ public class Reducer implements ReduceWorker {
 						for(int i=0; i<fromMapper.size(); i++){
 							System.out.println(fromMapper.get(i));
 				        }
-						//sendResults(reduce(fromMapper));
+						sendResults(reduce(fromMapper));
 					}
-					sendResults(reduce(fromMapper));
+					//sendResults(reduce(fromMapper));
 			}
 		};
 		Thread request = new Thread(requestsRunnable);
