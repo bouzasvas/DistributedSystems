@@ -107,9 +107,9 @@ public class Reducer implements ReduceWorker {
 						             System.out.println(key + " : " +map.get(key));			   
 						        }				
 						}
-						//sendResults(reduce(fromMapper));
+						sendResults(reduce(fromMapper));
 					}
-					sendResults(reduce(fromMapper));
+					//sendResults(reduce(fromMapper));
 			}
 		};
 		Thread request = new Thread(requestsRunnable);

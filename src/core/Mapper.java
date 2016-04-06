@@ -145,7 +145,7 @@ public class Mapper implements MapWorker {
 					input.nextLine();
 					
 			        sendToReducers(map(Checkins_Area));
-			        System.out.println("\nMap Complete! The intermediates results will be sent to Reducer.....\n");
+			        System.out.println("\nMap Complete! The intermediate results will be sent to Reducer.....\n");
 				}
 			}
 		};
