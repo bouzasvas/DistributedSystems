@@ -53,6 +53,7 @@ public class Master {
 			Client client = new Client(addr_ports);
 			client.requestAndConnect();
 			client.initServer();
+			client.printResults();
 		}
 		
 		else if (function == 2) {

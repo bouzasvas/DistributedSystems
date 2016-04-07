@@ -188,7 +188,7 @@ public class Mapper implements MapWorker {
 					+" from checkins where (latitude between " + CoreMinY + " and " + CoreMaxY
 					+ ") " + "and (longitude between " + minX + " and " + maxX + ") " + "and time between STR_TO_DATE('"
 					+ minDatetime + "', '%Y-%m-%d %H:%i:%s') and STR_TO_DATE('"
-					+ maxDatetime + "', '%Y-%m-%d %H:%i:%s') limit 10;");
+					+ maxDatetime + "', '%Y-%m-%d %H:%i:%s') limit 50;");
 			rs = pst.executeQuery();
 
 			String POI, POI_name, POI_category, POI_category_id, time, photos;
@@ -245,9 +245,9 @@ public class Mapper implements MapWorker {
         	intermediateMap.put(item.getKey(), item.getValue());
         }
         
-        for (Entry<Object, Long> entry : intermediateMap.entrySet()) {
-     	   System.out.println("POI: "+entry.getKey()+"\tCount: "+entry.getValue());
-        }
+//        for (Entry<Object, Long> entry : intermediateMap.entrySet()) {
+//     	   System.out.println("POI: "+entry.getKey()+"\tCount: "+entry.getValue());
+//        }
 
 		
 		return intermediateMap;

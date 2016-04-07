@@ -8,12 +8,14 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class Client {
 	
 	private ServerSocket fromReducer = null;
 	private Socket reducer = null;
 	
+	private Map<Object, Long> fromClient = null;
 	private List<String> addr_ports = null;
 	
 	private double minX, maxX, minY, maxY;
@@ -40,6 +42,8 @@ public class Client {
 			
 			String msg = (String) in.readObject();
 			System.out.println(msg);
+			
+			fromClient = (Map<Object, Long>) in.readObject();
 		}
 		catch (IOException e) {
 			System.err.println("Could not initialize client server...");
@@ -58,6 +62,15 @@ public class Client {
 				System.err.println("Could not close streams...");
 			}
 		}
+	}
+	
+	public void printResults() {
+		System.out.println("\n-----FINAL RESULTS FROM REDUCER-----");
+		System.out.println();
+		for(Object key : fromClient.keySet())
+        {
+             System.out.println("POI: " + key + " Count of Checkin: " +fromClient.get(key));			   
+        }
 	}
 	
 	public void requestAndConnect() {

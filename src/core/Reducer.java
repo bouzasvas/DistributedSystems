@@ -106,8 +106,7 @@ public class Reducer implements ReduceWorker {
 					receiveDataFromMap();
 					if (mapsArrived == 3) {
 						//printMapValues();
-						reduce(fromMapper);
-						//sendResults(reduce(fromMapper));
+						sendResults(reduce(fromMapper));
 					}
 					//sendResults(reduce(fromMapper));
 			}
@@ -145,9 +144,9 @@ public class Reducer implements ReduceWorker {
 	                Map.Entry::getValue, 
 	                (x,y)-> {throw new AssertionError();}, LinkedHashMap::new));
         
-       for (Entry<Object, Long> entry : toClient.entrySet()) {
-    	   System.out.println("POI: "+entry.getKey()+"\tCount: "+entry.getValue());
-       }
+//       for (Entry<Object, Long> entry : toClient.entrySet()) {
+//    	   System.out.println("POI: "+entry.getKey()+"\tCount: "+entry.getValue());
+//       }
         
         return toClient;
     }
@@ -163,7 +162,10 @@ public class Reducer implements ReduceWorker {
 			out = new ObjectOutputStream(toClientSocket.getOutputStream());
 			in = new ObjectInputStream(toClientSocket.getInputStream());
 			
-			out.writeObject("Hello from Reducer");
+			out.writeObject(">Successfully connected to "+toClientSocket.getInetAddress()+" on local port: "+toClientSocket.getLocalPort());
+			out.flush();
+			
+			out.writeObject(toClient);
 			out.flush();
 		}
 		catch (IOException e) {
