@@ -1,10 +1,13 @@
 package core;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import java.net.*;
 import java.io.*;
 
@@ -102,9 +105,7 @@ public class Reducer implements ReduceWorker {
 				System.out.println("Getting results from Mapper "+mapsArrived+"...\n");
 					receiveDataFromMap();
 					if (mapsArrived == 3) {
-						for(int i=0; i<fromMapper.size(); i++){
-							System.out.println(fromMapper.get(i));
-				        }
+						//printMapValues();
 						sendResults(reduce(fromMapper));
 					}
 					//sendResults(reduce(fromMapper));
@@ -112,6 +113,15 @@ public class Reducer implements ReduceWorker {
 		};
 		Thread request = new Thread(requestsRunnable);
 		request.start();
+	}
+	
+	public void printMapValues() {
+		for(Map<Object, Long> item : fromMapper){
+			System.out.println("*************************");
+			for (Entry e : item.entrySet()) {
+				System.out.println("POI: "+e.getKey()+"\tCount: "+e.getValue());;
+			}
+        }
 	}
 
 	@Override
@@ -121,15 +131,28 @@ public class Reducer implements ReduceWorker {
 	}
 
 	@Override
-	public Map<Integer, Object> reduce(List<Map<Object, Long>> listOfMaps) {
-		// TODO Auto-generated method stub
-		Map<Integer, Object> toClient = new HashMap<Integer, Object>();
-		
-		return toClient;
-	}
+	public Map<Object, Long> reduce(List<Map<Object, Long>> fromMapper) {
+        Map<Object, Long> toClient = new LinkedHashMap<Object, Long>();
+        toClient = fromMapper.stream()
+        		.reduce(toClient ,(o1,o2)->
+        		{o1.putAll(o2);
+                 return o1;});
+        
+        toClient = toClient.entrySet().stream().sorted(Map.Entry.comparingByValue((v1,v2)->v2.compareTo(v1)))
+	        .collect(Collectors.toMap(
+	                Map.Entry::getKey, 
+	                Map.Entry::getValue, 
+	                (x,y)-> {throw new AssertionError();}, LinkedHashMap::new));
+        
+//       for (Entry<Object, Long> entry : toClient.entrySet()) {
+//    	   System.out.println("POI: "+entry.getKey()+"\tCount: "+entry.getValue());
+//       }
+        
+        return toClient;
+    }
 
 	@Override
-	public void sendResults(Map<Integer, Object> toClient) {
+	public void sendResults(Map<Object, Long> toClient) {
 		Socket toClientSocket = null;
 		ObjectInputStream in = null;
 		ObjectOutputStream out = null;
@@ -139,7 +162,10 @@ public class Reducer implements ReduceWorker {
 			out = new ObjectOutputStream(toClientSocket.getOutputStream());
 			in = new ObjectInputStream(toClientSocket.getInputStream());
 			
-			out.writeObject("Hello from Reducer");
+			out.writeObject(">Successfully connected to "+toClientSocket.getInetAddress()+" on local port: "+toClientSocket.getLocalPort());
+			out.flush();
+			
+			out.writeObject(toClient);
 			out.flush();
 		}
 		catch (IOException e) {
