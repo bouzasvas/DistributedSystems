@@ -132,6 +132,7 @@ public class Client {
 			
 			System.out.println("Enter the minimun Date: ");
 			System.out.print(">");
+			input.next();
 			fromDate = input.nextLine();
 			
 			System.out.println("Enter the maximum Date: ");
