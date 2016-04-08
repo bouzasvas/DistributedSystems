@@ -14,7 +14,7 @@ public class Mapper implements MapWorker {
 
 	Scanner input = new Scanner(System.in);
 	
-	private List<ListOfCheckins> Checkins_Area = new ArrayList<ListOfCheckins>();
+	private List<ListOfCheckins> Checkins_Area;
 	
 	private String reducer_address;
 	
@@ -162,6 +162,7 @@ public class Mapper implements MapWorker {
 	}
 	
 	public void seperateMap(int coresNo) {
+		Checkins_Area = new ArrayList<ListOfCheckins>();
 		if (coresNo == 1)
 			Checkins_Area.add(readFromDB(minY, maxY));
 		else {
@@ -256,7 +257,7 @@ public class Mapper implements MapWorker {
         
 //        for (Entry<Object, Long> entry : intermediateMap.entrySet()) {
 //     	   System.out.println("POI: "+entry.getKey()+"\tCount: "+entry.getValue());
-//        }		
+//        }
 		return intermediateMap;
     }
 
