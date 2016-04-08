@@ -103,12 +103,11 @@ public class Reducer implements ReduceWorker {
 				mapsArrived++;
 				System.out.println("Getting results from Mapper "+mapsArrived+"...\n");
 					receiveDataFromMap();
-					if (mapsArrived == 3) {
+					if (mapsArrived == 1) {
 						//printMapValues();
 						sendResults(reduce(fromMapper));
 						mapsArrived = 0;
-						fromMapper = new ArrayList<Map<Object,Long>>();;
-						System.out.println("OK");
+						fromMapper = new ArrayList<Map<Object,Long>>();
 					}
 					//sendResults(reduce(fromMapper));
 			}
