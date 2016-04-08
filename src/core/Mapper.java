@@ -26,6 +26,7 @@ public class Mapper implements MapWorker {
 	private int reducer_port;
 	
 	private int cores;
+	private int topK;
 	
 	private double minX, maxX, minY, maxY = 0; // X is Longtitude, Y is Latitude
 	private String minDatetime, maxDatetime;
@@ -142,8 +143,13 @@ public class Mapper implements MapWorker {
 					
 					seperateMap(cores);
 					System.out.println("\nMap Proccess is ready to begin......");
-					System.out.println("Press a key to send results to Reducer...");
-					input.nextLine();
+					
+					System.out.println("Select the top-K resutls that are going to procceed to Reducer");
+					topK = input.nextInt();
+					
+					
+//					System.out.println("Press a key to send results to Reducer...");
+//					input.nextLine();
 					
 			        sendToReducers(map(Checkins_Area));
 			        System.out.println("\nMap Complete! The intermediate results will be sent to Reducer.....\n");
@@ -188,7 +194,7 @@ public class Mapper implements MapWorker {
 					+" from checkins where (latitude between " + CoreMinY + " and " + CoreMaxY
 					+ ") " + "and (longitude between " + minX + " and " + maxX + ") " + "and time between STR_TO_DATE('"
 					+ minDatetime + "', '%Y-%m-%d %H:%i:%s') and STR_TO_DATE('"
-					+ maxDatetime + "', '%Y-%m-%d %H:%i:%s') limit 50;");
+					+ maxDatetime + "', '%Y-%m-%d %H:%i:%s');");
 			rs = pst.executeQuery();
 
 			String POI, POI_name, POI_category, POI_category_id, time, photos;
@@ -241,15 +247,16 @@ public class Mapper implements MapWorker {
 		intermediateList = checkins.stream().parallel().map(p->p.getCheckinsList().stream().collect(Collectors.groupingBy(o-> o.getPOI(), Collectors.counting())))
               .flatMap (map -> map.entrySet().stream()).collect(Collectors.toList());
 		
-        for(Map.Entry<Object, Long> item : intermediateList){
+		intermediateList = intermediateList.stream().parallel().sorted(Map.Entry.comparingByValue((v1,v2)->v2.compareTo(v1))).collect(Collectors.toList());
+		
+        for(int top = 0; top < this.topK; top++){
+        	Map.Entry<Object, Long> item = intermediateList.get(top);
         	intermediateMap.put(item.getKey(), item.getValue());
         }
         
 //        for (Entry<Object, Long> entry : intermediateMap.entrySet()) {
 //     	   System.out.println("POI: "+entry.getKey()+"\tCount: "+entry.getValue());
-//        }
-
-		
+//        }		
 		return intermediateMap;
     }
 

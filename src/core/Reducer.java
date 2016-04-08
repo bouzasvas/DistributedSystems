@@ -20,7 +20,7 @@ public class Reducer implements ReduceWorker {
 	ServerSocket reducer = null;
 	Socket client = null;
 	
-	static int mapsArrived;
+	static int mapsArrived = 0;
 	
 	List<Map<Object, Long>> fromMapper = new ArrayList<Map<Object,Long>>();
 	
@@ -48,13 +48,11 @@ public class Reducer implements ReduceWorker {
 	public void initialize() {
 		
 		try {
-			this.mapsArrived = 0;
 			reducer = new ServerSocket(reducerPort);
 			System.out.println("Running on local port "+reducer.getLocalPort()+" and waiting for connections..");
 			
 			while (true) {	
 				client = reducer.accept();
-				mapsArrived++;
 				waitForTasksThread();
 			}
 		}
@@ -102,11 +100,15 @@ public class Reducer implements ReduceWorker {
 	public void waitForTasksThread() {	
 		Runnable requestsRunnable = new Runnable() {
 			public void run() {
+				mapsArrived++;
 				System.out.println("Getting results from Mapper "+mapsArrived+"...\n");
 					receiveDataFromMap();
 					if (mapsArrived == 3) {
 						//printMapValues();
 						sendResults(reduce(fromMapper));
+						mapsArrived = 0;
+						fromMapper = new ArrayList<Map<Object,Long>>();;
+						System.out.println("OK");
 					}
 					//sendResults(reduce(fromMapper));
 			}
