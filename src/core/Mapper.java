@@ -245,8 +245,7 @@ public class Mapper implements MapWorker {
 //		intermediateList = checkins.stream().parallel().map(p->p.getCheckinsList().stream().collect(Collectors.groupingBy(o-> o.getPOI(), Collectors.counting())))
 //                .flatMap (map -> map.entrySet().stream()).collect(Collectors.toList());
 		
-		intermediateList = checkins.stream().parallel().map(p->p.getCheckinsList().stream().collect(Collectors.groupingBy(o-> o.getPOI(), Collectors.counting())))
-              .flatMap (map -> map.entrySet().stream()).collect(Collectors.toList());
+		intermediateList = checkins.stream().parallel().map(p->p.getCheckinsList().stream().collect(Collectors.groupingBy(o-> o.getPOI(), Collectors.counting()))).flatMap (map -> map.entrySet().stream()).collect(Collectors.toList());
 		
 		intermediateList = intermediateList.stream().parallel().sorted(Map.Entry.comparingByValue((v1,v2)->v2.compareTo(v1))).collect(Collectors.toList());
 		

@@ -24,7 +24,11 @@ public class Checkin {
 		this.photoURL = photoURL;
 	}
 	
-	public String getPOI() {
+//	public String getPOI() {
+//		return this.POI;
+//	}
+	
+	public Object getPOI() {
 		return this.POI;
 	}
 	

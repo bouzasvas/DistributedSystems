@@ -46,8 +46,9 @@ public class ListOfCheckins {
         return this.checkinsList;
     }
 	
-	public String[] getPOIs() {
-		String[] pois = new String[checkinsList.size()];
+	public Object[] getPOIs() {
+		//String[] pois = new String[checkinsList.size()];
+		Object[] pois = new String[checkinsList.size()];
 		int index = 0;
 		
 		for (Checkin ch: checkinsList) {
