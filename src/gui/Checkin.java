@@ -1,7 +1,6 @@
-package core;
+package gui;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 public class Checkin {
 
@@ -99,11 +98,5 @@ public class Checkin {
 	
 	public void ShowCheckin() { //TO-SEE method return type
 		System.out.println(POI+"|"+POI_name+"|"+POI_category+"|"+POI_category_id+"|"+Latitude+"|"+Longitude+"|"+datetime+"|"+photoURL);
-	}
-	
-	public Set<String> countPhotos() {
-		Set<String> listOfPhotos = new HashSet<String>();
-		listOfPhotos.add(this.getPhotoURL());
-		return listOfPhotos;
 	}
 }
