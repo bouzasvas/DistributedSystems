@@ -8,12 +8,17 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Font;
 import javax.swing.JSeparator;
 import javax.swing.JRadioButton;
 import javax.swing.JTextPane;
 import javax.swing.JTextField;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.awt.event.ActionEvent;
 import javax.swing.ButtonGroup;
 import java.awt.Component;
@@ -22,7 +27,7 @@ import javax.swing.JScrollPane;
 
 public class ClientGUI extends JDialog {
 
-	private final JPanel window = new JPanel();
+	private static final JPanel window = new JPanel();
 	private static JTextField minLongText;
 	private static JTextField maxLongText;
 	private static JTextField minLatText;
@@ -31,6 +36,7 @@ public class ClientGUI extends JDialog {
 	private static JTextField minDateText;
 	private static JTextField maxDateText;
 	private static JTextPane results;
+	private static JButton okButton;
 
 	/**
 	 * Launch the application.
@@ -62,7 +68,7 @@ public class ClientGUI extends JDialog {
 		window.add(welcomeText);
 		
 		JSeparator separator = new JSeparator();
-		separator.setBounds(0, 50, 434, 2);
+		separator.setBounds(0, 50, 641, 2);
 		window.add(separator);
 		
 		JLabel defaultLabel = new JLabel("Default Values?");
@@ -151,7 +157,7 @@ public class ClientGUI extends JDialog {
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
 			getContentPane().add(buttonPane, BorderLayout.SOUTH);
 			{
-				JButton okButton = new JButton("OK");
+				okButton = new JButton("OK");
 				okButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						if (yes.isSelected()) {
@@ -190,6 +196,31 @@ public class ClientGUI extends JDialog {
 			
 			@Override
 			public void run() {
+				okButton.setText("Save Results");
+				okButton.addActionListener(new ActionListener() {
+					
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						File resFile = null;
+						FileWriter fw = null;
+						try {
+							resFile = new File("results.txt");
+							String text = results.getText();
+							fw = new FileWriter(resFile);
+							fw.write(text);
+							JOptionPane.showMessageDialog(window, "Results saved successfully to file \"results.txt\"");
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						}
+						finally {
+							try {
+								fw.close();
+							} catch (IOException e1) {
+								e1.printStackTrace();
+							}
+						}
+					}
+				});
 				if (def == 1) {
 					MasterGUI master = new MasterGUI(1, def);
 					master.client.printResults(results);

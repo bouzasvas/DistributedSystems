@@ -32,6 +32,7 @@ import javax.swing.ButtonGroup;
 public class MainWindos extends JDialog {
 	static JComboBox list;
 	static JTextPane consoleResults;
+	static JPanel buttonPane;
 	
 	int funct;
 	static int mapperID;
@@ -58,7 +59,7 @@ public class MainWindos extends JDialog {
 		setBounds(100, 100, 450, 357);
 		getContentPane().setLayout(null);
 		{
-			JPanel buttonPane = new JPanel();
+			buttonPane = new JPanel();
 			buttonPane.setBounds(0, 274, 434, 33);
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
 			getContentPane().add(buttonPane);
