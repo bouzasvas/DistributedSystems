@@ -46,6 +46,7 @@ public class ListOfCheckins {
         return this.checkinsList;
     }
 	
+	//public String[] getPOIs() -- for eclipse Luna
 	public Object[] getPOIs() {
 		//String[] pois = new String[checkinsList.size()];
 		Object[] pois = new String[checkinsList.size()];
@@ -57,12 +58,4 @@ public class ListOfCheckins {
 		}
 		return pois;
 	}
-	
-//	public int count(String poi) {
-//		int count = 0;
-//		if (this.POI == poi) {
-//			count++;
-//		}
-//		return count;
-//	}
 }

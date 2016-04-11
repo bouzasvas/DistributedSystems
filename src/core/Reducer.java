@@ -134,12 +134,18 @@ public class Reducer implements ReduceWorker {
 	@Override
 	public Map<Object, Long> reduce(List<Map<Object, Long>> fromMapper) {
         Map<Object, Long> toClient = new LinkedHashMap<Object, Long>();
-        toClient = fromMapper.stream()
+        
+        toClient = fromMapper.stream().parallel()
         		.reduce(toClient ,(o1,o2)->
         		{o1.putAll(o2);
                  return o1;});
         
-        toClient = toClient.entrySet().stream().sorted(Map.Entry.comparingByValue((v1,v2)->v2.compareTo(v1)))
+//        toClient = fromMapper.stream() //for GUI
+//        		.reduce(toClient ,(o1,o2)->
+//        		{o1.putAll(o2);
+//                 return o1;});
+        
+        toClient = toClient.entrySet().stream().parallel().sorted(Map.Entry.comparingByValue((v1,v2)->v2.compareTo(v1)))
 	        .collect(Collectors.toMap(
 	                Map.Entry::getKey, 
 	                Map.Entry::getValue, 

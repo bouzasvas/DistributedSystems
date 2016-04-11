@@ -8,7 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import core.*;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
+
+import core.Mapper;
+import core.Reducer;
 
 public class MasterGUI {
 	
@@ -16,6 +20,7 @@ public class MasterGUI {
 	
 	static Mapper mapper;
 	static Reducer reducer;
+	static Client client;
 	
 	int function, mapperID;
 	
@@ -38,24 +43,21 @@ public class MasterGUI {
 		}
 	}
 	
-	public MasterGUI(int function) {
+	public MasterGUI(int function, int id) {
 			initPorts();
 		if (function == 1) {
-			Client client = new Client(addr_ports);
+			boolean def;
+			if (id == 0)
+				def = false;
+			else
+				def = true;
+			client = new Client(addr_ports, def);
 			client.requestAndConnect();
 			client.initServer();
-			client.printResults();
 		}
 		else if (function == 2) {
-			System.out.println("Select mapper from 1 to 3");
-			System.out.print(">");
-			mapperID = input.nextInt();
-			if (mapperID == 0||mapperID > 3) {
-				System.out.println("No mapper found for this selection!");
-			}
-			int port = 2*mapperID-1;
+			int port = 2*id-1;
 			
-			//mapper = new Mapper(Integer.parseInt(addr_ports.get(port)), "172.16.1.30", Integer.parseInt(addr_ports.get(7)));
 			mapper = new Mapper(Integer.parseInt(addr_ports.get(port)), addr_ports.get(6), Integer.parseInt(addr_ports.get(7)));		
 			mapper.initialize();
 		}

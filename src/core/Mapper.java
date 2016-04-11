@@ -1,10 +1,8 @@
 package core;
+
 import java.util.*;
-import java.util.Date;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.net.*;
 import java.sql.*;
@@ -239,13 +237,10 @@ public class Mapper implements MapWorker {
 	@Override
 	public Map<Object, Long> map(List<ListOfCheckins> checkins) {
 		Map<Object, Long> intermediateMap = new HashMap<Object, Long>();
-		
 		List<Map.Entry<Object, Long>> intermediateList = new ArrayList<Map.Entry<Object, Long>>();
 		
-//		intermediateList = checkins.stream().parallel().map(p->p.getCheckinsList().stream().collect(Collectors.groupingBy(o-> o.getPOI(), Collectors.counting())))
-//                .flatMap (map -> map.entrySet().stream()).collect(Collectors.toList());
-		
-		intermediateList = checkins.stream().parallel().map(p->p.getCheckinsList().stream().collect(Collectors.groupingBy(o-> o.getPOI(), Collectors.counting()))).flatMap (map -> map.entrySet().stream()).collect(Collectors.toList());
+		intermediateList = checkins.stream().parallel().map(p->p.getCheckinsList().stream().collect(Collectors.groupingBy(o-> o.getPOI(), Collectors.counting())))
+				.flatMap (map -> map.entrySet().stream()).collect(Collectors.toList());
 		
 		intermediateList = intermediateList.stream().parallel().sorted(Map.Entry.comparingByValue((v1,v2)->v2.compareTo(v1))).collect(Collectors.toList());
 		

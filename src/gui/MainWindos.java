@@ -1,8 +1,9 @@
 package gui;
 
+import core.*;
+
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
@@ -21,9 +22,21 @@ import java.awt.Font;
 import javax.swing.JComboBox;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JTextPane;
+import javax.swing.JTextField;
+import javax.swing.JList;
+import javax.swing.JRadioButton;
+import javax.swing.ButtonGroup;
 
 public class MainWindos extends JDialog {
 	static JComboBox list;
+	static JTextPane consoleResults;
+	static JPanel buttonPane;
+	
+	int funct;
+	static int mapperID;
+	private final ButtonGroup buttonGroup = new ButtonGroup();
 	/**
 	 * Launch the application.
 	 */
@@ -41,12 +54,13 @@ public class MainWindos extends JDialog {
 	 * Create the dialog.
 	 */
 	public MainWindos() {
+		setResizable(false);
 		JButton okButton;
-		setBounds(100, 100, 450, 300);
+		setBounds(100, 100, 450, 357);
 		getContentPane().setLayout(null);
 		{
-			JPanel buttonPane = new JPanel();
-			buttonPane.setBounds(0, 205, 434, 33);
+			buttonPane = new JPanel();
+			buttonPane.setBounds(0, 274, 434, 33);
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
 			getContentPane().add(buttonPane);
 			{
@@ -72,57 +86,112 @@ public class MainWindos extends JDialog {
 			lblNewLabel.setBounds(103, 21, 223, 29);
 			getContentPane().add(lblNewLabel);
 		
+			consoleResults = new JTextPane();
+			consoleResults.setBounds(10, 134, 424, 129);
+			getContentPane().add(consoleResults);
+			
 			String[] choices = {"Mapper", "Reducer", "Client"};
 			list = new JComboBox(choices);
 			list.setBounds(147, 61, 126, 20);
 			
 			getContentPane().add(list);
 			
+			JRadioButton mapper1 = new JRadioButton("Mapper 1");
+			buttonGroup.add(mapper1);
+			mapper1.setBounds(6, 104, 109, 23);
+			mapper1.setVisible(false);
+			getContentPane().add(mapper1);
+			
+			JRadioButton mapper2 = new JRadioButton("Mapper 2");
+			buttonGroup.add(mapper2);
+			mapper2.setBounds(164, 104, 109, 23);
+			mapper2.setVisible(false);
+			getContentPane().add(mapper2);
+			
+			JRadioButton mapper3 = new JRadioButton("Mapper 3");
+			buttonGroup.add(mapper3);
+			mapper3.setBounds(319, 104, 109, 23);
+			mapper3.setVisible(false);
+			getContentPane().add(mapper3);
+			
+			JLabel label = new JLabel("Select Mapper");
+			label.setVisible(false);
+			label.setFont(new Font("Tahoma", Font.ITALIC, 14));
+			label.setHorizontalAlignment(SwingConstants.CENTER);
+			label.setBounds(103, 86, 223, 20);
+			getContentPane().add(label);
+			list.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					String choice = list.getSelectedItem().toString();
+					if (choice.equals("Client")) {
+						funct = 1;
+					}
+					else if (choice.equals("Mapper")) {
+						funct = 2;
+						label.setVisible(true);
+						mapper1.setVisible(true);
+						mapper2.setVisible(true);
+						mapper3.setVisible(true);
+					}
+					else if (choice.equals("Reducer")) {
+						funct = 3;
+					}
+				}
+				});
+			
 			okButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					guiThread();
+					if (mapper1.isSelected()) {
+						mapperID = 1;
+					}
+					else if (mapper2.isSelected()) {
+						mapperID = 2;
+					}
+					else if (mapper3.isSelected()) {
+						mapperID = 3;
+					}
+					label.setVisible(false);
+					mapper1.setVisible(false);
+					mapper2.setVisible(false);
+					mapper3.setVisible(false);
+					okButton.setVisible(false);
+					if (funct == 1) {
+						ClientGUI client = new ClientGUI();
+						client.setVisible(true);
+					}
+					else {
+						guiThread(funct, mapperID, consoleResults);
+					}
 				}
 			});
-		
-		
-			JMenuBar menuBar = new JMenuBar();
-			setJMenuBar(menuBar);
-			{
-				JMenuItem mntmNewMenuItem = new JMenuItem("File");
-				menuBar.add(mntmNewMenuItem);
-			}
-			{
-				JMenuItem mntmAbout = new JMenuItem("About");
-				menuBar.add(mntmAbout);
-			}
 			
 		}
 	}
 	
-	private static void guiThread() {
+	private static void guiThread(int funct, int id, JTextPane console) {
 		Runnable runnable = new Runnable() {
 			
 			@Override
 			public void run() {
-				String choice = list.getSelectedItem().toString();
-				
-				if (choice.equals("Mapper")) {
-					MasterGUI master = new MasterGUI(2);
-				}
-				else if (choice.equals("Reducer")) {
-					MasterGUI master = new MasterGUI(3);
-				}
-				else if (choice.equals("Client")) {
-					MasterGUI master = new MasterGUI(1);
-				}
-				
+				rolesMsgs(funct);
+				MasterGUI master = new MasterGUI(funct, id);				
 			}
 		};
 		Thread thread = new Thread(runnable);
 		thread.start();
 	}
 	
-	
+	private static void rolesMsgs(int funct) {
+		if (funct == 1) {
+			consoleResults.setText("A new window will open for client side...");
+		}
+		else if (funct == 2)
+			consoleResults.setText("Mapper "+ mapperID +" has initialized and waits for requests...");
+		else 
+			consoleResults.setText("Reducer has initialized and waits for intermediate data...");
+		}
 
 	private static void addPopup(Component component, final JPopupMenu popup) {
 		component.addMouseListener(new MouseAdapter() {
