@@ -1,7 +1,6 @@
 package gui;
 
 import core.*;
-import java.util.Scanner;
 
 import javax.swing.JTextPane;
 
@@ -24,9 +23,7 @@ public class Client {
 	
 	private double minX, maxX, minY, maxY;
 	private String fromDate, toDate;
-	
-	private Scanner input = new Scanner(System.in);
-	
+		
 	private boolean defaultVal;
 	
 	public Client(List<String> addr_ports, boolean defaultVal) {

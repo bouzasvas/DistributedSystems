@@ -20,6 +20,7 @@ public class Client {
 	
 	private double minX, maxX, minY, maxY;
 	private String fromDate, toDate;
+	private String[] dates = new String[2];
 	
 	private Scanner input = new Scanner(System.in);
 	
@@ -74,9 +75,9 @@ public class Client {
 	}
 	
 	public void requestAndConnect() {
-		ConnectToMapper map1 = new ConnectToMapper(initCoordinates(1, minX, maxX, minY, maxY), initDate(), addr_ports.get(0), Integer.parseInt(addr_ports.get(1))); //Client1
-		ConnectToMapper map2 = new ConnectToMapper(initCoordinates(2, minX, maxX, minY, maxY), initDate(), addr_ports.get(2), Integer.parseInt(addr_ports.get(3))); //Client2
-		ConnectToMapper map3 = new ConnectToMapper(initCoordinates(3, minX, maxX, minY, maxY), initDate(), addr_ports.get(4), Integer.parseInt(addr_ports.get(5))); //Client3
+		ConnectToMapper map1 = new ConnectToMapper(initCoordinates(1, minX, maxX, minY, maxY), dates, addr_ports.get(0), Integer.parseInt(addr_ports.get(1))); //Client1
+		ConnectToMapper map2 = new ConnectToMapper(initCoordinates(2, minX, maxX, minY, maxY), dates, addr_ports.get(2), Integer.parseInt(addr_ports.get(3))); //Client2
+		ConnectToMapper map3 = new ConnectToMapper(initCoordinates(3, minX, maxX, minY, maxY), dates, addr_ports.get(4), Integer.parseInt(addr_ports.get(5))); //Client3
 		
 		map1.start();
 		map2.start();
@@ -112,6 +113,7 @@ public class Client {
 			this.maxX = -73.9018372248612;
 			this.minY = 40.67747711364791;
 			this.maxY = 40.76662365086325;
+			initDate(defaultValues, "", "");
 		}
 		else {
 			System.out.println("Enter the minimun Longitude: ");
@@ -138,6 +140,8 @@ public class Client {
 			System.out.println("Enter the maximum Date: ");
 			System.out.print(">");
 			toDate = input.nextLine();
+			
+			initDate(false, fromDate, toDate);
 		}
 	}
 	
@@ -169,10 +173,18 @@ public class Client {
 			return coordinates;
 	}
 	
-	private static String[] initDate () {
-		String minDate = "2012-05-09 00:00:00";
-		String maxDate = "2012-11-06 23:59:00";
-		String[] dates = {minDate, maxDate};
-		return dates;
+	private void initDate (boolean def, String min, String max) {
+		String minDate, maxDate;
+		
+		if (def) {
+			minDate = "2012-05-09 00:00:00";
+			maxDate = "2012-11-06 23:59:00";
+		}
+		else {
+			minDate = min;
+			maxDate =max;
+		}
+		this.dates[0] = minDate;
+		this.dates[1] = maxDate;
 	}
 }

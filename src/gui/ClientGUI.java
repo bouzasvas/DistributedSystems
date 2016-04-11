@@ -16,10 +16,13 @@ import javax.swing.JTextField;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.ButtonGroup;
+import java.awt.Component;
+import javax.swing.Box;
+import javax.swing.JScrollPane;
 
 public class ClientGUI extends JDialog {
 
-	private final JPanel date = new JPanel();
+	private final JPanel window = new JPanel();
 	private static JTextField minLongText;
 	private static JTextField maxLongText;
 	private static JTextField minLatText;
@@ -46,97 +49,103 @@ public class ClientGUI extends JDialog {
 	 * Create the dialog.
 	 */
 	public ClientGUI() {
+		setResizable(false);
 		setBounds(100, 100, 647, 340);
 		getContentPane().setLayout(new BorderLayout());
-		date.setBorder(new EmptyBorder(5, 5, 5, 5));
-		getContentPane().add(date, BorderLayout.CENTER);
-		date.setLayout(null);
+		window.setBorder(new EmptyBorder(5, 5, 5, 5));
+		getContentPane().add(window, BorderLayout.CENTER);
+		window.setLayout(null);
 		
 		JLabel welcomeText = new JLabel("Client Side");
 		welcomeText.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		welcomeText.setBounds(10, 11, 114, 28);
-		date.add(welcomeText);
+		window.add(welcomeText);
 		
 		JSeparator separator = new JSeparator();
 		separator.setBounds(0, 50, 434, 2);
-		date.add(separator);
+		window.add(separator);
 		
 		JLabel defaultLabel = new JLabel("Default Values?");
 		defaultLabel.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		defaultLabel.setBounds(10, 63, 114, 14);
-		date.add(defaultLabel);
+		window.add(defaultLabel);
 		
 		JRadioButton yes = new JRadioButton("Yes");
 		buttonGroup.add(yes);
 		yes.setBounds(6, 83, 73, 23);
-		date.add(yes);
+		window.add(yes);
 		
 		JRadioButton no = new JRadioButton("No");
 		buttonGroup.add(no);
 		no.setBounds(81, 83, 55, 23);
-		date.add(no);
+		window.add(no);
 		
-		results = new JTextPane();
-		results.setBounds(266, 122, 355, 135);
-		date.add(results);
+		
 		
 		minLongText = new JTextField();
 		minLongText.setBounds(10, 111, 151, 20);
-		date.add(minLongText);
+		window.add(minLongText);
 		minLongText.setColumns(10);
 		
 		maxLongText = new JTextField();
 		maxLongText.setBounds(10, 133, 151, 20);
-		date.add(maxLongText);
+		window.add(maxLongText);
 		maxLongText.setColumns(10);
 		
 		minLatText = new JTextField();
 		minLatText.setBounds(10, 155, 151, 20);
-		date.add(minLatText);
+		window.add(minLatText);
 		minLatText.setColumns(10);
 		
 		maxLatText = new JTextField();
 		maxLatText.setBounds(10, 178, 151, 20);
-		date.add(maxLatText);
+		window.add(maxLatText);
 		maxLatText.setColumns(10);
 		
 		JLabel minLong = new JLabel("Min Longitude");
 		minLong.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		minLong.setBounds(171, 114, 73, 14);
-		date.add(minLong);
+		window.add(minLong);
 		
 		JLabel maxLong = new JLabel("Max Longitude");
 		maxLong.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		maxLong.setBounds(171, 136, 73, 14);
-		date.add(maxLong);
+		window.add(maxLong);
 		
 		JLabel minLat = new JLabel("Min Latitude");
 		minLat.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		minLat.setBounds(171, 158, 73, 14);
-		date.add(minLat);
+		window.add(minLat);
 		
 		JLabel maxLat = new JLabel("Max Latitude");
 		maxLat.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		maxLat.setBounds(171, 181, 73, 14);
-		date.add(maxLat);
+		window.add(maxLat);
 		
 		minDateText = new JTextField();
 		minDateText.setBounds(10, 208, 151, 20);
-		date.add(minDateText);
+		window.add(minDateText);
 		minDateText.setColumns(10);
 		
 		JLabel minDate = new JLabel("From Date");
 		minDate.setBounds(171, 211, 73, 14);
-		date.add(minDate);
+		window.add(minDate);
 		
 		maxDateText = new JTextField();
 		maxDateText.setBounds(10, 237, 151, 20);
-		date.add(maxDateText);
+		window.add(maxDateText);
 		maxDateText.setColumns(10);
 		
 		JLabel maxDate = new JLabel("To Date");
 		maxDate.setBounds(171, 240, 73, 14);
-		date.add(maxDate);
+		window.add(maxDate);
+		
+		JScrollPane scrollResults = new JScrollPane();
+		scrollResults.setBounds(281, 83, 340, 174);
+		window.add(scrollResults);
+		
+		results = new JTextPane();
+		scrollResults.setViewportView(results);
 		{
 			JPanel buttonPane = new JPanel();
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));

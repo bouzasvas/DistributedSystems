@@ -53,6 +53,7 @@ public class MainWindos extends JDialog {
 	 * Create the dialog.
 	 */
 	public MainWindos() {
+		setResizable(false);
 		JButton okButton;
 		setBounds(100, 100, 450, 357);
 		getContentPane().setLayout(null);
@@ -113,6 +114,7 @@ public class MainWindos extends JDialog {
 			getContentPane().add(mapper3);
 			
 			JLabel label = new JLabel("Select Mapper");
+			label.setVisible(false);
 			label.setFont(new Font("Tahoma", Font.ITALIC, 14));
 			label.setHorizontalAlignment(SwingConstants.CENTER);
 			label.setBounds(103, 86, 223, 20);
@@ -125,9 +127,6 @@ public class MainWindos extends JDialog {
 					if (choice.equals("Client")) {
 						funct = 1;
 					}
-					else if (choice.equals("Reducer")) {
-						funct = 3;
-					}
 					else if (choice.equals("Mapper")) {
 						funct = 2;
 						label.setVisible(true);
@@ -135,9 +134,8 @@ public class MainWindos extends JDialog {
 						mapper2.setVisible(true);
 						mapper3.setVisible(true);
 					}
-					if (choice.equals("Reudcer")) {
-						//String msg = "Running on local port "+reducer.getLocalPort()+" and waiting for connections..";
-						//consoleResults.setText(msg);
+					else if (choice.equals("Reducer")) {
+						funct = 3;
 					}
 				}
 				});
@@ -157,11 +155,14 @@ public class MainWindos extends JDialog {
 					mapper1.setVisible(false);
 					mapper2.setVisible(false);
 					mapper3.setVisible(false);
+					okButton.setVisible(false);
 					if (funct == 1) {
 						ClientGUI client = new ClientGUI();
 						client.setVisible(true);
 					}
-					guiThread(funct, mapperID, consoleResults);
+					else {
+						guiThread(funct, mapperID, consoleResults);
+					}
 				}
 			});
 			
