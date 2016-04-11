@@ -16,6 +16,8 @@ public class Reducer implements ReduceWorker {
 	private String clientAddress;
 	private int clientPort;
 	
+	private int topK;
+	
 	private int reducerPort;
 	ServerSocket reducer = null;
 	Socket client = null;
@@ -76,6 +78,7 @@ public class Reducer implements ReduceWorker {
 				try {
 					Map<Object, Long> dataFromMap = (Map<Object, Long>) input.readObject();
 					fromMapper.add(dataFromMap);
+					topK = input.readInt();
 					
 //						for(Object key : fromMapper.keySet())
 //				        {
@@ -135,18 +138,14 @@ public class Reducer implements ReduceWorker {
 	public Map<Object, Long> reduce(List<Map<Object, Long>> fromMapper) {
         Map<Object, Long> toClient = new LinkedHashMap<Object, Long>();
         
-        toClient = fromMapper.stream().parallel()
+        toClient = fromMapper.stream()
         		.reduce(toClient ,(o1,o2)->
         		{o1.putAll(o2);
                  return o1;});
         
-//        toClient = fromMapper.stream() //for GUI
-//        		.reduce(toClient ,(o1,o2)->
-//        		{o1.putAll(o2);
-//                 return o1;});
-        
         toClient = toClient.entrySet().stream().parallel().sorted(Map.Entry.comparingByValue((v1,v2)->v2.compareTo(v1)))
-	        .collect(Collectors.toMap(
+        		.limit(topK)
+        		.collect(Collectors.toMap(
 	                Map.Entry::getKey, 
 	                Map.Entry::getValue, 
 	                (x,y)-> {throw new AssertionError();}, LinkedHashMap::new));

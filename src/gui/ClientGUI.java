@@ -24,6 +24,7 @@ import javax.swing.ButtonGroup;
 import java.awt.Component;
 import javax.swing.Box;
 import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
 
 public class ClientGUI extends JDialog {
 
@@ -37,6 +38,7 @@ public class ClientGUI extends JDialog {
 	private static JTextField maxDateText;
 	private static JTextPane results;
 	private static JButton okButton;
+	private static JTextField topK;
 
 	/**
 	 * Launch the application.
@@ -56,7 +58,7 @@ public class ClientGUI extends JDialog {
 	 */
 	public ClientGUI() {
 		setResizable(false);
-		setBounds(100, 100, 647, 340);
+		setBounds(100, 100, 647, 372);
 		getContentPane().setLayout(new BorderLayout());
 		window.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(window, BorderLayout.CENTER);
@@ -152,6 +154,18 @@ public class ClientGUI extends JDialog {
 		
 		results = new JTextPane();
 		scrollResults.setViewportView(results);
+		
+		JLabel topkLabel = new JLabel("Select the top-K results");
+		topkLabel.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		topkLabel.setHorizontalAlignment(SwingConstants.LEFT);
+		topkLabel.setBounds(10, 274, 162, 25);
+		window.add(topkLabel);
+		
+		topK = new JTextField();
+		topK.setToolTipText("");
+		topK.setBounds(192, 278, 86, 20);
+		window.add(topK);
+		topK.setColumns(10);
 		{
 			JPanel buttonPane = new JPanel();
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
@@ -160,6 +174,9 @@ public class ClientGUI extends JDialog {
 				okButton = new JButton("OK");
 				okButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
+						if (topK == null) {
+							results.setText("Top-K field must have a value");
+						}							
 						if (yes.isSelected()) {
 							minLongText.setText("-74.0144996501386");
 							maxLongText.setText("-73.9018372248612");
@@ -222,11 +239,11 @@ public class ClientGUI extends JDialog {
 					}
 				});
 				if (def == 1) {
-					MasterGUI master = new MasterGUI(1, def);
+					MasterGUI master = new MasterGUI(1, def, Integer.valueOf(topK.getText()));
 					master.client.printResults(results);
 				}
 				else {
-					MasterGUI master = new MasterGUI(1, def);
+					MasterGUI master = new MasterGUI(1, def, Integer.valueOf(topK.getText()));
 					master.client.queryValues(false, Double.parseDouble(minLongText.getText()), Double.parseDouble(maxLongText.getText())
 							, Double.parseDouble(minLatText.getText()), Double.parseDouble(maxLatText.getText()), minDateText.getText(), maxDateText.getText());
 				}

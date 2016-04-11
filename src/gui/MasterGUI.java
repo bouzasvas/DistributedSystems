@@ -43,7 +43,7 @@ public class MasterGUI {
 		}
 	}
 	
-	public MasterGUI(int function, int id) {
+	public MasterGUI(int function, int id, int topKForClient) {
 			initPorts();
 		if (function == 1) {
 			boolean def;
@@ -52,6 +52,7 @@ public class MasterGUI {
 			else
 				def = true;
 			client = new Client(addr_ports, def);
+			client.setTopK(topKForClient);
 			client.requestAndConnect();
 			client.initServer();
 		}
