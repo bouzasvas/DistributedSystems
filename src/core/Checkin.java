@@ -33,7 +33,11 @@ public class Checkin {
 		return this.POI;
 	}
 	
-	public String getPOI_name() {
+//	public String getPOI_name() {
+//		return POI_name;
+//	}
+	
+	public Object getPOI_name() {
 		return POI_name;
 	}
 

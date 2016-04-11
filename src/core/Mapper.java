@@ -102,6 +102,7 @@ public class Mapper implements MapWorker {
 			System.err.println("Could not initialize streams...");
 		}
 		try {
+			topK = in.readInt();
 			minX = in.readDouble();
 			maxX = in.readDouble();
 			minY = in.readDouble();
@@ -142,8 +143,8 @@ public class Mapper implements MapWorker {
 					seperateMap(cores);
 					System.out.println("\nMap Proccess is ready to begin......");
 					
-					System.out.println("Select the top-K resutls that are going to procceed to Reducer");
-					topK = input.nextInt();
+//					System.out.println("Select the top-K resutls that are going to procceed to Reducer");
+//					topK = input.nextInt();
 					
 					
 //					System.out.println("Press a key to send results to Reducer...");
@@ -239,7 +240,7 @@ public class Mapper implements MapWorker {
 		Map<Object, Long> intermediateMap = new HashMap<Object, Long>();
 		List<Map.Entry<Object, Long>> intermediateList = new ArrayList<Map.Entry<Object, Long>>();
 		
-		intermediateList = checkins.stream().parallel().map(p->p.getCheckinsList().stream().collect(Collectors.groupingBy(o-> o.getPOI(), Collectors.counting())))
+		intermediateList = checkins.stream().parallel().map(p->p.getCheckinsList().stream().collect(Collectors.groupingBy(o-> o.getPOI_name(), Collectors.counting())))
 				.flatMap (map -> map.entrySet().stream()).collect(Collectors.toList());
 		
 		intermediateList = intermediateList.stream().parallel().sorted(Map.Entry.comparingByValue((v1,v2)->v2.compareTo(v1))).collect(Collectors.toList());
@@ -273,6 +274,9 @@ public class Mapper implements MapWorker {
 			in = new ObjectInputStream(reducer.getInputStream());
 				
 				out.writeObject(toReducer);
+				out.flush();
+				
+				out.writeInt(topK);
 				out.flush();
 				
 				try {

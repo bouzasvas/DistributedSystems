@@ -12,6 +12,7 @@ public class ConnectToMapper extends Thread {
 	private double minX, maxX, minY, maxY;
 	private String minDatetime;
 	private String maxDatetime;
+	private int topK;
 
 	private String address;
 	private int port;
@@ -33,8 +34,9 @@ public class ConnectToMapper extends Thread {
 		this.port = port;
 	}
 	
-	public ConnectToMapper(List<Double> values, String[] datetime, String address, int port) {
+	public ConnectToMapper(int topK, List<Double> values, String[] datetime, String address, int port) {
 		setValues(values.get(0), values.get(1), values.get(2), values.get(3), datetime[0], datetime[1]);
+		this.topK = topK;
 		this.address = address;
 		this.port = port;
 	}
@@ -67,6 +69,9 @@ public class ConnectToMapper extends Thread {
 					e.printStackTrace();
 				}
 				System.out.println(">"+serverResponse);
+				
+				out.writeInt(topK);
+				out.flush();
 				
 				out.writeDouble(minX);
 				out.flush();

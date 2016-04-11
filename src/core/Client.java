@@ -21,6 +21,7 @@ public class Client {
 	private double minX, maxX, minY, maxY;
 	private String fromDate, toDate;
 	private String[] dates = new String[2];
+	private int topK;
 	
 	private Scanner input = new Scanner(System.in);
 	
@@ -70,14 +71,14 @@ public class Client {
 		System.out.println();
 		for(Object key : fromClient.keySet())
         {
-             System.out.println("POI: " + key + " Count of Checkin: " +fromClient.get(key));			   
+             System.out.println("POI Name: " + key + "||" + " Count of Checkins: " +fromClient.get(key));			   
         }
 	}
 	
 	public void requestAndConnect() {
-		ConnectToMapper map1 = new ConnectToMapper(initCoordinates(1, minX, maxX, minY, maxY), dates, addr_ports.get(0), Integer.parseInt(addr_ports.get(1))); //Client1
-		ConnectToMapper map2 = new ConnectToMapper(initCoordinates(2, minX, maxX, minY, maxY), dates, addr_ports.get(2), Integer.parseInt(addr_ports.get(3))); //Client2
-		ConnectToMapper map3 = new ConnectToMapper(initCoordinates(3, minX, maxX, minY, maxY), dates, addr_ports.get(4), Integer.parseInt(addr_ports.get(5))); //Client3
+		ConnectToMapper map1 = new ConnectToMapper(topK, initCoordinates(1, minX, maxX, minY, maxY), dates, addr_ports.get(0), Integer.parseInt(addr_ports.get(1))); //Client1
+		ConnectToMapper map2 = new ConnectToMapper(topK, initCoordinates(2, minX, maxX, minY, maxY), dates, addr_ports.get(2), Integer.parseInt(addr_ports.get(3))); //Client2
+		ConnectToMapper map3 = new ConnectToMapper(topK, initCoordinates(3, minX, maxX, minY, maxY), dates, addr_ports.get(4), Integer.parseInt(addr_ports.get(5))); //Client3
 		
 		map1.start();
 		map2.start();
@@ -88,6 +89,7 @@ public class Client {
 		System.out.println("\n1) Default Values for testing");
 		System.out.println("2) Define your own values");
 		System.out.print(">");
+		
 		
 		int choice = input.nextInt();
 		
@@ -108,6 +110,11 @@ public class Client {
 	}
 	
 	private void queryValues(boolean defaultValues) {		
+		System.out.println("Select the top-k results");
+		System.out.print(">");
+		
+		topK = input.nextInt();
+		
 		if (defaultValues) {
 			this.minX  = -74.0144996501386;
 			this.maxX = -73.9018372248612;

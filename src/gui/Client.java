@@ -23,6 +23,7 @@ public class Client {
 	
 	private double minX, maxX, minY, maxY;
 	private String fromDate, toDate;
+	private int topK;
 		
 	private boolean defaultVal;
 	
@@ -73,15 +74,15 @@ public class Client {
 		output.setText(msg);
 		for(Object key : fromClient.keySet())
         {
-			msg = msg + "\n" + "POI: " + key + " Count of Checkin: " +fromClient.get(key);
+			msg = msg + "\n" + "POI Name: " + key + " || Count of Checkins: " +fromClient.get(key);
             output.setText(msg);		   
         }
 	}
 
 	public void requestAndConnect() {
-		ConnectToMapper map1 = new ConnectToMapper(initCoordinates(1, minX, maxX, minY, maxY), initDate(), addr_ports.get(0), Integer.parseInt(addr_ports.get(1))); //Client1
-		ConnectToMapper map2 = new ConnectToMapper(initCoordinates(2, minX, maxX, minY, maxY), initDate(), addr_ports.get(2), Integer.parseInt(addr_ports.get(3))); //Client2
-		ConnectToMapper map3 = new ConnectToMapper(initCoordinates(3, minX, maxX, minY, maxY), initDate(), addr_ports.get(4), Integer.parseInt(addr_ports.get(5))); //Client3
+		ConnectToMapper map1 = new ConnectToMapper(topK, initCoordinates(1, minX, maxX, minY, maxY), initDate(), addr_ports.get(0), Integer.parseInt(addr_ports.get(1))); //Client1
+		ConnectToMapper map2 = new ConnectToMapper(topK, initCoordinates(2, minX, maxX, minY, maxY), initDate(), addr_ports.get(2), Integer.parseInt(addr_ports.get(3))); //Client2
+		ConnectToMapper map3 = new ConnectToMapper(topK, initCoordinates(3, minX, maxX, minY, maxY), initDate(), addr_ports.get(4), Integer.parseInt(addr_ports.get(5))); //Client3
 		
 		map1.start();
 		map2.start();
@@ -89,6 +90,10 @@ public class Client {
 	}
 	
 	
+	public void setTopK(int topK) {
+		this.topK = topK;
+	}
+
 	public void queryValues(boolean defaultValues, double minX, double maxX, 
 			double minY, double maxY, String fromDate, String toDate) {		
 		if (defaultValues) {
