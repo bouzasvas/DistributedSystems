@@ -292,8 +292,8 @@ public class Mapper implements MapWorker {
 		finally {
 			if (!reducer_address.equals("localhost")) {
 				try {
-					in.close();
 					out.close();
+					in.close();
 					reducer.close();
 				}
 				catch (IOException e) {
