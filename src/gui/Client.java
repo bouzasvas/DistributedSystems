@@ -102,6 +102,7 @@ public class Client {
 			this.maxX = -73.9018372248612;
 			this.minY = 40.67747711364791;
 			this.maxY = 40.76662365086325;
+			initDate(true, fromDate, toDate);
 		}
 		else {
 			this.minX = minX;
