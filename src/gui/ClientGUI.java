@@ -94,59 +94,71 @@ public class ClientGUI extends JDialog {
 		minLongText.setBounds(10, 111, 151, 20);
 		window.add(minLongText);
 		minLongText.setColumns(10);
+		minLongText.setVisible(false);
 		
 		maxLongText = new JTextField();
 		maxLongText.setBounds(10, 133, 151, 20);
 		window.add(maxLongText);
 		maxLongText.setColumns(10);
+		maxLongText.setVisible(false);
 		
 		minLatText = new JTextField();
 		minLatText.setBounds(10, 155, 151, 20);
 		window.add(minLatText);
 		minLatText.setColumns(10);
+		minLatText.setVisible(false);
 		
 		maxLatText = new JTextField();
 		maxLatText.setBounds(10, 178, 151, 20);
 		window.add(maxLatText);
 		maxLatText.setColumns(10);
+		maxLatText.setVisible(false);
 		
 		JLabel minLong = new JLabel("Min Longitude");
 		minLong.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		minLong.setBounds(171, 114, 73, 14);
 		window.add(minLong);
+		minLong.setVisible(false);
 		
 		JLabel maxLong = new JLabel("Max Longitude");
 		maxLong.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		maxLong.setBounds(171, 136, 73, 14);
 		window.add(maxLong);
+		maxLong.setVisible(false);
 		
 		JLabel minLat = new JLabel("Min Latitude");
 		minLat.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		minLat.setBounds(171, 158, 73, 14);
 		window.add(minLat);
+		minLat.setVisible(false);
 		
 		JLabel maxLat = new JLabel("Max Latitude");
 		maxLat.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		maxLat.setBounds(171, 181, 73, 14);
 		window.add(maxLat);
+		maxLat.setVisible(false);
 		
 		minDateText = new JTextField();
 		minDateText.setBounds(10, 208, 151, 20);
 		window.add(minDateText);
 		minDateText.setColumns(10);
+		minDateText.setVisible(false);
 		
 		JLabel minDate = new JLabel("From Date");
 		minDate.setBounds(171, 211, 73, 14);
 		window.add(minDate);
+		minDate.setVisible(false);
 		
 		maxDateText = new JTextField();
 		maxDateText.setBounds(10, 237, 151, 20);
 		window.add(maxDateText);
 		maxDateText.setColumns(10);
+		maxDateText.setVisible(false);
 		
 		JLabel maxDate = new JLabel("To Date");
 		maxDate.setBounds(171, 240, 73, 14);
 		window.add(maxDate);
+		maxDate.setVisible(false);
 		
 		JScrollPane scrollResults = new JScrollPane();
 		scrollResults.setBounds(281, 83, 340, 174);
@@ -166,6 +178,23 @@ public class ClientGUI extends JDialog {
 		topK.setBounds(192, 278, 86, 20);
 		window.add(topK);
 		topK.setColumns(10);
+		
+		no.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				minLongText.setVisible(true);
+				maxLongText.setVisible(true);
+				minLatText.setVisible(true);
+				maxLatText.setVisible(true);
+				minLong.setVisible(true);
+				maxLong.setVisible(true);
+				minLat.setVisible(true);
+				maxLat.setVisible(true);
+				minDateText.setVisible(true);
+				maxDateText.setVisible(true);
+				minDate.setVisible(true);
+				maxDate.setVisible(true);
+			}
+		});
 		{
 			JPanel buttonPane = new JPanel();
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
@@ -178,12 +207,11 @@ public class ClientGUI extends JDialog {
 							results.setText("Top-K field must have a value");
 						}							
 						if (yes.isSelected()) {
-							minLongText.setText("-74.0144996501386");
-							maxLongText.setText("-73.9018372248612");
-							minLatText.setText("40.67747711364791");
-							maxLatText.setText("40.76662365086325");
-							minDateText.setText("2012-05-09 00:00:00");
-							maxDateText.setText("2012-11-06 23:59:00");
+							String msg = "Test Values: \n"
+									+ "Longitude between -74.0144996501386 and -73.9018372248612\n"
+									+ "Latitude between 40.67747711364791 and 40.76662365086325\n"
+									+ "Date between 2012-05-09 00:00:00 and 2012-11-06 23:59:00";
+							results.setText(msg);
 							guiThread(1);
 						}
 						if (no.isSelected()) {
