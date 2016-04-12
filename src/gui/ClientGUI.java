@@ -239,15 +239,16 @@ public class ClientGUI extends JDialog {
 					}
 				});
 				if (def == 1) {
-					MasterGUI master = new MasterGUI(1, def, Integer.valueOf(topK.getText()));
+					String[] args = {String.valueOf(def), topK.getText()};
+					MasterGUI master = new MasterGUI(1, args);
 					master.client.printResults(results);
 				}
 				else {
-					MasterGUI master = new MasterGUI(1, def, Integer.valueOf(topK.getText()));
-					master.client.queryValues(false, Double.parseDouble(minLongText.getText()), Double.parseDouble(maxLongText.getText())
-							, Double.parseDouble(minLatText.getText()), Double.parseDouble(maxLatText.getText()), minDateText.getText(), maxDateText.getText());
+					String[] args = {String.valueOf(def), topK.getText(), minLongText.getText(), maxLongText.getText(), minLatText.getText(), maxLatText.getText(), minDateText.getText(), maxDateText.getText()};
+					MasterGUI master = new MasterGUI(1, args);
+					master.client.printResults(results);
+					}
 				}
-			}
 		};
 		Thread thread = new Thread(runnable);
 		thread.start();

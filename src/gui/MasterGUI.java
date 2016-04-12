@@ -43,29 +43,56 @@ public class MasterGUI {
 		}
 	}
 	
-	public MasterGUI(int function, int id, int topKForClient) {
-			initPorts();
-		if (function == 1) {
-			boolean def;
-			if (id == 0)
-				def = false;
-			else
-				def = true;
-			client = new Client(addr_ports, def);
-			client.setTopK(topKForClient);
-			client.requestAndConnect();
-			client.initServer();
+	public MasterGUI(int funct, String[] args) {
+		initPorts();
+		if (funct == 1) {
+			initClient(args);
 		}
-		else if (function == 2) {
-			int port = 2*id-1;
-			
-			mapper = new Mapper(Integer.parseInt(addr_ports.get(port)), addr_ports.get(6), Integer.parseInt(addr_ports.get(7)));		
-			mapper.initialize();
+		else if (funct == 2) {
+			initMapper(args);
 		}
-		else if (function == 3) {
-			Reducer reducer = new Reducer(Integer.parseInt(addr_ports.get(7)), addr_ports.get(8), Integer.parseInt(addr_ports.get(9)));
-			reducer.initialize();
+		else {
+			initReducer();
 		}
 	}
-
+	
+	
+	public void initClient(String[] args) {
+		boolean def;
+		int id = Integer.valueOf(args[0]);
+		
+		if (id == 0) {
+			def = false;
+			client = new Client(addr_ports, def);
+			client.setTopK(Integer.valueOf(args[1]));
+			double minX = Double.parseDouble(args[2]);
+			double maxX = Double.parseDouble(args[3]);
+			double minY = Double.parseDouble(args[4]);
+			double maxY = Double.parseDouble(args[5]);
+			String fromDate = args[6];
+			String toDate = args[7];
+			
+			client.queryValues(def,minX , maxX, minY, maxY, fromDate, toDate);
+		}
+		else {
+			def = true;
+			client = new Client(addr_ports, def);
+			client.setTopK(Integer.valueOf(args[1]));
+		}
+		client.requestAndConnect();
+		client.initServer();
+	}
+	
+	public void initMapper(String[] args) {
+		int id = Integer.valueOf(args[0]);
+		int port = 2*id-1;
+		
+		mapper = new Mapper(Integer.parseInt(addr_ports.get(port)), addr_ports.get(6), Integer.parseInt(addr_ports.get(7)));		
+		mapper.initialize();
+	}
+	
+	public void initReducer() {
+		Reducer reducer = new Reducer(Integer.parseInt(addr_ports.get(7)), addr_ports.get(8), Integer.parseInt(addr_ports.get(9)));
+		reducer.initialize();
+	}
 }

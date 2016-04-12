@@ -176,7 +176,8 @@ public class MainWindos extends JDialog {
 			@Override
 			public void run() {
 				rolesMsgs(funct);
-				MasterGUI master = new MasterGUI(funct, id, 0);				
+				String[] args = {String.valueOf(id)};
+				MasterGUI master = new MasterGUI(funct, args);				
 			}
 		};
 		Thread thread = new Thread(runnable);
