@@ -192,9 +192,7 @@ public class Mapper implements MapWorker {
 			con = DriverManager.getConnection(url, user, password);
 			pst = con.prepareStatement("select POI, POI_name, POI_category, POI_category_id, latitude, longitude, time, photos" 
 					+" from checkins where (latitude between " + CoreMinY + " and " + CoreMaxY
-					+ ") " + "and (longitude between " + minX + " and " + maxX + ") " + "and time between STR_TO_DATE('"
-					+ minDatetime + "', '%Y-%m-%d %H:%i:%s') and STR_TO_DATE('"
-					+ maxDatetime + "', '%Y-%m-%d %H:%i:%s');");
+					+ ") " + "and (longitude between " + minX + " and " + maxX + ") " + "and time between \'" + minDatetime +"\' and \'"+ maxDatetime +"\';");
 			rs = pst.executeQuery();
 
 			String POI, POI_name, POI_category, POI_category_id, time, photos;
@@ -245,10 +243,12 @@ public class Mapper implements MapWorker {
 		
 		intermediateList = intermediateList.stream().parallel().sorted(Map.Entry.comparingByValue((v1,v2)->v2.compareTo(v1))).collect(Collectors.toList());
 		
-        for(int top = 0; top < this.topK; top++){
-        	Map.Entry<Object, Long> item = intermediateList.get(top);
-        	intermediateMap.put(item.getKey(), item.getValue());
-        }
+		if (intermediateList.size()!=0) {
+	        for(int top = 0; top < this.topK; top++){
+	        	Map.Entry<Object, Long> item = intermediateList.get(top);
+	        	intermediateMap.put(item.getKey(), item.getValue());
+	        }
+		}
         
 //        for (Entry<Object, Long> entry : intermediateMap.entrySet()) {
 //     	   System.out.println("POI: "+entry.getKey()+"\tCount: "+entry.getValue());
@@ -292,8 +292,8 @@ public class Mapper implements MapWorker {
 		finally {
 			if (!reducer_address.equals("localhost")) {
 				try {
-					in.close();
 					out.close();
+					in.close();
 					reducer.close();
 				}
 				catch (IOException e) {

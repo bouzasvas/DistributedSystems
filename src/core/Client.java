@@ -141,7 +141,7 @@ public class Client {
 			
 			System.out.println("Enter the minimun Date: ");
 			System.out.print(">");
-			input.next();
+			input.nextLine();
 			fromDate = input.nextLine();
 			
 			System.out.println("Enter the maximum Date: ");
@@ -189,7 +189,7 @@ public class Client {
 		}
 		else {
 			minDate = min;
-			maxDate =max;
+			maxDate = max;
 		}
 		this.dates[0] = minDate;
 		this.dates[1] = maxDate;

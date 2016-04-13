@@ -74,7 +74,7 @@ public class Reducer implements ReduceWorker {
 				System.err.println("Could not initialize IO objects");
 				e.printStackTrace();
 			}
-			//synchronized (input) {
+			synchronized (client) {
 				try {
 					Map<Object, Long> dataFromMap = (Map<Object, Long>) input.readObject();
 					fromMapper.add(dataFromMap);
@@ -96,7 +96,7 @@ public class Reducer implements ReduceWorker {
 				} catch (IOException e) {
 					System.err.println("Could not send reply to client");
 				}
-			//}
+			}
 		}
 	
 	@Override
@@ -106,7 +106,7 @@ public class Reducer implements ReduceWorker {
 				mapsArrived++;
 				System.out.println("Getting results from Mapper "+mapsArrived+"...\n");
 					receiveDataFromMap();
-					if (mapsArrived == 3) {
+					if (mapsArrived >= 3) {
 						//printMapValues();
 						sendResults(reduce(fromMapper));
 						mapsArrived = 0;
