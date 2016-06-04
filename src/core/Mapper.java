@@ -236,17 +236,33 @@ public class Mapper implements MapWorker {
 	@Override
 	public Map<Object, Long> map(List<ListOfCheckins> checkins) {
 		Map<Object, Long> intermediateMap = new HashMap<Object, Long>();
-		List<Map.Entry<Object, Long>> intermediateList = new ArrayList<Map.Entry<Object, Long>>();
+		List<Map.Entry<Object, List<Checkin>>> intermediateList = new ArrayList<Map.Entry<Object, List<Checkin>>>();
+		//List<Map.Entry<Object, List<Checkin>>> intermediatePhotoList = new ArrayList<Map.Entry<Object, List<Checkin>>>();
 		
-		intermediateList = checkins.stream().parallel().map(p->p.getCheckinsList().stream().collect(Collectors.groupingBy(o-> o.getPOI_name(), Collectors.counting())))
-				.flatMap (map -> map.entrySet().stream()).collect(Collectors.toList());
+//		intermediateList = checkins.stream().parallel().map(p->p.getCheckinsList().stream()
+//				.collect(Collectors.groupingBy(o-> o.getPOI_name(), Collectors.counting())))
+//				.flatMap (map -> map.entrySet().stream()).collect(Collectors.toList());
+		intermediateList = checkins.stream().flatMap(s->s.getCheckinsList().stream())
+				.collect(Collectors.groupingBy(Checkin::getPOI_name)).entrySet()
+				.stream().collect(Collectors.toList());
+				
+				
 		
-		intermediateList = intermediateList.stream().parallel().sorted(Map.Entry.comparingByValue((v1,v2)->v2.compareTo(v1))).collect(Collectors.toList());
+		//intermediateList = intermediateList.stream().parallel().sorted(Map.Entry.comparingByValue((v1,v2)->v2.compareTo(v1))).collect(Collectors.toList());
+		
+		intermediateList = intermediateList.stream().parallel()
+				.sorted((e1, e2) -> Integer.compare(e1.getValue().size(), e2.getValue().size()))
+				.collect(Collectors.toList());
+				 
 		
 		if (intermediateList.size()!=0) {
 	        for(int top = 0; top < this.topK; top++){
-	        	Map.Entry<Object, Long> item = intermediateList.get(top);
-	        	intermediateMap.put(item.getKey(), item.getValue());
+	        	//Map.Entry<Object, Long> item1 = intermediateList.get(top);
+	        	Map.Entry<Object, List<Checkin>> item = intermediateList.get(top);
+	        	List<String> photo_list = item.getValue().stream().map(h->h.getPhotoURL())
+	        			.collect(Collectors.toList());
+	        	EntryKey tmpEntry = new EntryKey(item.getKey(), photo_list, item.getValue().get(0).getLongitude(), item.getValue().get(0).getLatitude());
+	        	intermediateMap.put(tmpEntry, tmpEntry.getCount());
 	        }
 		}
         
