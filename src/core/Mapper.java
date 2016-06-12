@@ -1,6 +1,7 @@
 package core;
 
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -234,8 +235,8 @@ public class Mapper implements MapWorker {
 	}
 
 	@Override
-	public Map<Object, Long> map(List<ListOfCheckins> checkins) {
-		Map<Object, Long> intermediateMap = new HashMap<Object, Long>();
+	public Map<Object, POI_Photos> map(List<ListOfCheckins> checkins) {
+		Map<Object, POI_Photos> intermediateMap = new HashMap<Object, POI_Photos>();
 		List<Map.Entry<Object, List<Checkin>>> intermediateList = new ArrayList<Map.Entry<Object, List<Checkin>>>();
 		//List<Map.Entry<Object, List<Checkin>>> intermediatePhotoList = new ArrayList<Map.Entry<Object, List<Checkin>>>();
 		
@@ -243,7 +244,7 @@ public class Mapper implements MapWorker {
 //				.collect(Collectors.groupingBy(o-> o.getPOI_name(), Collectors.counting())))
 //				.flatMap (map -> map.entrySet().stream()).collect(Collectors.toList());
 		intermediateList = checkins.stream().flatMap(s->s.getCheckinsList().stream())
-				.collect(Collectors.groupingBy(Checkin::getPOI_name)).entrySet()
+				.collect(Collectors.groupingBy(Checkin::getPOI)).entrySet()
 				.stream().collect(Collectors.toList());
 				
 				
@@ -251,7 +252,7 @@ public class Mapper implements MapWorker {
 		//intermediateList = intermediateList.stream().parallel().sorted(Map.Entry.comparingByValue((v1,v2)->v2.compareTo(v1))).collect(Collectors.toList());
 		
 		intermediateList = intermediateList.stream().parallel()
-				.sorted((e1, e2) -> Integer.compare(e1.getValue().size(), e2.getValue().size()))
+				.sorted((e1, e2) -> Integer.compare(e2.getValue().size(), e1.getValue().size()))
 				.collect(Collectors.toList());
 				 
 		
@@ -261,14 +262,19 @@ public class Mapper implements MapWorker {
 	        	Map.Entry<Object, List<Checkin>> item = intermediateList.get(top);
 	        	List<String> photo_list = item.getValue().stream().map(h->h.getPhotoURL())
 	        			.collect(Collectors.toList());
-	        	EntryKey tmpEntry = new EntryKey(item.getKey(), photo_list, item.getValue().get(0).getLongitude(), item.getValue().get(0).getLatitude());
-	        	intermediateMap.put(tmpEntry, tmpEntry.getCount());
+	        	POI_Photos tmpEntry = new POI_Photos(item.getKey(), item.getValue().get(0).getPOI_name(), photo_list, item.getValue().get(0).getLongitude(), item.getValue().get(0).getLatitude());
+	        	intermediateMap.put(tmpEntry.getPOI(), tmpEntry);
 	        }
 		}
         
 //        for (Entry<Object, Long> entry : intermediateMap.entrySet()) {
 //     	   System.out.println("POI: "+entry.getKey()+"\tCount: "+entry.getValue());
 //        }
+//		List<Entry<Object, POI_Photos>> tmpList = intermediateMap.entrySet().stream().parallel()
+//			.sorted((e1, e2) -> Integer.compare(e2.getValue().getCount(), e1.getValue().getCount())).collect(Collectors.toList());
+//		
+//		intermediateMap = tmpList.stream()
+//				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 		return intermediateMap;
     }
 
@@ -279,7 +285,7 @@ public class Mapper implements MapWorker {
 	}
 
 	@Override
-	public void sendToReducers(Map<Object, Long> toReducer) {
+	public void sendToReducers(Map<Object, POI_Photos> toReducer) {
 		ObjectInputStream in = null;
 		ObjectOutputStream out = null;
 		

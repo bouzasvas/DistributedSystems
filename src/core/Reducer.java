@@ -24,7 +24,7 @@ public class Reducer implements ReduceWorker {
 	
 	static int mapsArrived = 0;
 	
-	List<Map<Object, Long>> fromMapper = new ArrayList<Map<Object,Long>>();
+	List<Map<Object, POI_Photos>> fromMapper = new ArrayList<Map<Object, POI_Photos>>();
 	
 	public Reducer(int port) {
 		if (checkPortAvailability(port))
@@ -76,7 +76,7 @@ public class Reducer implements ReduceWorker {
 			}
 			synchronized (client) {
 				try {
-					Map<Object, Long> dataFromMap = (Map<Object, Long>) input.readObject();
+					Map<Object, POI_Photos> dataFromMap = (Map<Object, POI_Photos>) input.readObject();
 					fromMapper.add(dataFromMap);
 					topK = input.readInt();
 					
@@ -110,7 +110,7 @@ public class Reducer implements ReduceWorker {
 						//printMapValues();
 						sendResults(reduce(fromMapper));
 						mapsArrived = 0;
-						fromMapper = new ArrayList<Map<Object,Long>>();
+						fromMapper = new ArrayList<Map<Object, POI_Photos>>();
 					}
 					//sendResults(reduce(fromMapper));
 			}
@@ -120,7 +120,7 @@ public class Reducer implements ReduceWorker {
 	}
 	
 	public void printMapValues() {
-		for(Map<Object, Long> item : fromMapper){
+		for(Map<Object, POI_Photos> item : fromMapper){
 			System.out.println("*************************");
 			for (Entry e : item.entrySet()) {
 				System.out.println("POI: "+e.getKey()+"\tCount: "+e.getValue());;
@@ -135,8 +135,8 @@ public class Reducer implements ReduceWorker {
 	}
 
 	@Override
-	public Map<Object, Long> reduce(List<Map<Object, Long>> fromMapper) {
-        Map<Object, Long> toClient = new LinkedHashMap<Object, Long>();
+	public Map<Object, POI_Photos> reduce(List<Map<Object, POI_Photos>> fromMapper) {
+        Map<Object, POI_Photos> toClient = new LinkedHashMap<Object, POI_Photos>();
         
         toClient = fromMapper.stream()
         		.reduce(toClient ,(o1,o2)->
@@ -158,7 +158,7 @@ public class Reducer implements ReduceWorker {
     }
 
 	@Override
-	public void sendResults(Map<Object, Long> toClient) {
+	public void sendResults(Map<Object, POI_Photos> toClient) {
 		Socket toClientSocket = null;
 		ObjectInputStream in = null;
 		ObjectOutputStream out = null;
