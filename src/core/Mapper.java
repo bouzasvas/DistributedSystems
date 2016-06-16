@@ -1,6 +1,7 @@
 package core;
 
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -143,13 +144,6 @@ public class Mapper implements MapWorker {
 					seperateMap(cores);
 					System.out.println("\nMap Proccess is ready to begin......");
 					
-//					System.out.println("Select the top-K resutls that are going to procceed to Reducer");
-//					topK = input.nextInt();
-					
-					
-//					System.out.println("Press a key to send results to Reducer...");
-//					input.nextLine();
-					
 			        sendToReducers(map(Checkins_Area));
 			        System.out.println("\nMap Complete! The intermediate results will be sent to Reducer.....\n");
 				}
@@ -173,7 +167,6 @@ public class Mapper implements MapWorker {
 				maxY = maxY + coreLength;
 			}
 		}
-		//printCheckinsArea();
 	}
 	
 	public ListOfCheckins readFromDB(double CoreMinY, double CoreMaxY) {
@@ -234,25 +227,44 @@ public class Mapper implements MapWorker {
 	}
 
 	@Override
-	public Map<Object, Long> map(List<ListOfCheckins> checkins) {
-		Map<Object, Long> intermediateMap = new HashMap<Object, Long>();
-		List<Map.Entry<Object, Long>> intermediateList = new ArrayList<Map.Entry<Object, Long>>();
+	public Map<Object, List> map(List<ListOfCheckins> checkins) {
+		Map<Object, List> intermediateMap = new LinkedHashMap<Object, List>();
+		List<Map.Entry<Object, List<Checkin>>> intermediateList = new ArrayList<Map.Entry<Object, List<Checkin>>>();
 		
-		intermediateList = checkins.stream().parallel().map(p->p.getCheckinsList().stream().collect(Collectors.groupingBy(o-> o.getPOI_name(), Collectors.counting())))
-				.flatMap (map -> map.entrySet().stream()).collect(Collectors.toList());
+		intermediateList = checkins.stream().flatMap(s->s.getCheckinsList().stream())
+				.collect(Collectors.groupingBy(Checkin::getPOI)).entrySet()
+				.stream().collect(Collectors.toList());
+				
+						
+		intermediateList = intermediateList.stream().parallel()
+				.sorted((e1, e2) -> Integer.compare(e2.getValue().size(), e1.getValue().size()))
+				.collect(Collectors.toList());
+				 
+		//check if user input is greater than List Size
+		if (topK > intermediateList.size()) {
+			topK = intermediateList.size();
+		}
 		
-		intermediateList = intermediateList.stream().parallel().sorted(Map.Entry.comparingByValue((v1,v2)->v2.compareTo(v1))).collect(Collectors.toList());
-		
-		if (intermediateList.size()!=0) {
+		if (topK != 0) {
 	        for(int top = 0; top < this.topK; top++){
-	        	Map.Entry<Object, Long> item = intermediateList.get(top);
-	        	intermediateMap.put(item.getKey(), item.getValue());
+	        	Map.Entry<Object, List<Checkin>> item = intermediateList.get(top);
+	        	List<String> photo_list = item.getValue().stream().map(h->h.getPhotoURL())
+	        			.collect(Collectors.toList());
+	        	
+	        	//Data for each Checkin based on intermediateList
+	        	List<Object> checkinDetails = new ArrayList<Object>();
+	        	checkinDetails.add(item.getValue().get(0).getPOI());
+	        	checkinDetails.add(item.getValue().get(0).getPOI_name());
+	        	checkinDetails.add(photo_list);
+	        	checkinDetails.add(photo_list.size());
+	        	checkinDetails.add(item.getValue().get(0).getLongitude());
+	        	checkinDetails.add(item.getValue().get(0).getLatitude());
+	        	
+	        	//Put every checkin with its details into intermediaMap
+	        	intermediateMap.put(item.getKey(), checkinDetails);
 	        }
 		}
         
-//        for (Entry<Object, Long> entry : intermediateMap.entrySet()) {
-//     	   System.out.println("POI: "+entry.getKey()+"\tCount: "+entry.getValue());
-//        }
 		return intermediateMap;
     }
 
@@ -263,7 +275,7 @@ public class Mapper implements MapWorker {
 	}
 
 	@Override
-	public void sendToReducers(Map<Object, Long> toReducer) {
+	public void sendToReducers(Map<Object, List> toReducer) {
 		ObjectInputStream in = null;
 		ObjectOutputStream out = null;
 		
