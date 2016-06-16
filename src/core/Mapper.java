@@ -235,8 +235,8 @@ public class Mapper implements MapWorker {
 	}
 
 	@Override
-	public Map<Object, POI_Photos> map(List<ListOfCheckins> checkins) {
-		Map<Object, POI_Photos> intermediateMap = new HashMap<Object, POI_Photos>();
+	public Map<Object, List> map(List<ListOfCheckins> checkins) {
+		Map<Object, List> intermediateMap = new LinkedHashMap<Object, List>();
 		List<Map.Entry<Object, List<Checkin>>> intermediateList = new ArrayList<Map.Entry<Object, List<Checkin>>>();
 		//List<Map.Entry<Object, List<Checkin>>> intermediatePhotoList = new ArrayList<Map.Entry<Object, List<Checkin>>>();
 		
@@ -262,14 +262,24 @@ public class Mapper implements MapWorker {
 	        	Map.Entry<Object, List<Checkin>> item = intermediateList.get(top);
 	        	List<String> photo_list = item.getValue().stream().map(h->h.getPhotoURL())
 	        			.collect(Collectors.toList());
-	        	POI_Photos tmpEntry = new POI_Photos(item.getKey(), item.getValue().get(0).getPOI_name(), photo_list, item.getValue().get(0).getLongitude(), item.getValue().get(0).getLatitude());
-	        	intermediateMap.put(tmpEntry.getPOI(), tmpEntry);
+	        	
+	        	List<Object> dataAboutCheckin = new ArrayList<Object>();
+	        	dataAboutCheckin.add(item.getKey());
+	        	dataAboutCheckin.add(item.getValue().get(0).getPOI_name());
+	        	dataAboutCheckin.add(photo_list);
+	        	dataAboutCheckin.add(photo_list.size());
+	        	dataAboutCheckin.add(item.getValue().get(0).getLongitude());
+	        	dataAboutCheckin.add(item.getValue().get(0).getLatitude());
+	        	
+	        	//POI_Photos tmpEntry = new POI_Photos(item.getKey(), item.getValue().get(0).getPOI_name(), photo_list, item.getValue().get(0).getLongitude(), item.getValue().get(0).getLatitude());
+	        	intermediateMap.put(item.getKey(), dataAboutCheckin);
 	        }
 		}
         
-//        for (Entry<Object, Long> entry : intermediateMap.entrySet()) {
-//     	   System.out.println("POI: "+entry.getKey()+"\tCount: "+entry.getValue());
+//        for (Entry<Object, POI_Photos> entry : intermediateMap.entrySet()) {
+//     	   System.out.println("POI: "+entry.getValue().getPOI_Name()+"\tCount: "+entry.getValue().getCount());
 //        }
+		
 //		List<Entry<Object, POI_Photos>> tmpList = intermediateMap.entrySet().stream().parallel()
 //			.sorted((e1, e2) -> Integer.compare(e2.getValue().getCount(), e1.getValue().getCount())).collect(Collectors.toList());
 //		
@@ -285,7 +295,7 @@ public class Mapper implements MapWorker {
 	}
 
 	@Override
-	public void sendToReducers(Map<Object, POI_Photos> toReducer) {
+	public void sendToReducers(Map<Object, List> toReducer) {
 		ObjectInputStream in = null;
 		ObjectOutputStream out = null;
 		

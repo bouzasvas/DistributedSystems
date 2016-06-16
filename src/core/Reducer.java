@@ -24,7 +24,7 @@ public class Reducer implements ReduceWorker {
 	
 	static int mapsArrived = 0;
 	
-	List<Map<Object, POI_Photos>> fromMapper = new ArrayList<Map<Object, POI_Photos>>();
+	List<Map<Object, List>> fromMapper = new ArrayList<Map<Object, List>>();
 	
 	public Reducer(int port) {
 		if (checkPortAvailability(port))
@@ -76,13 +76,15 @@ public class Reducer implements ReduceWorker {
 			}
 			synchronized (client) {
 				try {
-					Map<Object, POI_Photos> dataFromMap = (Map<Object, POI_Photos>) input.readObject();
+					Map<Object, List> dataFromMap = (Map<Object, List>) input.readObject();
 					fromMapper.add(dataFromMap);
 					topK = input.readInt();
 					
-//						for(Object key : fromMapper.keySet())
+//						for(Map<Object, List> map : fromMapper) 
 //				        {
-//				             System.out.println(key + " : " +fromMapper.get(key));			   
+//							for (Object key : map.keySet()) {
+//								System.out.println(key + " : " +map.get(key).get(3));
+//							}
 //				        }
 				}
 				catch (IOException | ClassNotFoundException e) {
@@ -110,7 +112,7 @@ public class Reducer implements ReduceWorker {
 						//printMapValues();
 						sendResults(reduce(fromMapper));
 						mapsArrived = 0;
-						fromMapper = new ArrayList<Map<Object, POI_Photos>>();
+						fromMapper = new ArrayList<Map<Object, List>>();
 					}
 					//sendResults(reduce(fromMapper));
 			}
@@ -120,7 +122,7 @@ public class Reducer implements ReduceWorker {
 	}
 	
 	public void printMapValues() {
-		for(Map<Object, POI_Photos> item : fromMapper){
+		for(Map<Object, List> item : fromMapper){
 			System.out.println("*************************");
 			for (Entry e : item.entrySet()) {
 				System.out.println("POI: "+e.getKey()+"\tCount: "+e.getValue());;
@@ -135,30 +137,42 @@ public class Reducer implements ReduceWorker {
 	}
 
 	@Override
-	public Map<Object, POI_Photos> reduce(List<Map<Object, POI_Photos>> fromMapper) {
-        Map<Object, POI_Photos> toClient = new LinkedHashMap<Object, POI_Photos>();
+	public Map<Object, List> reduce(List<Map<Object, List>> fromMapper) {
+        Map<Object, List> toDevice = new LinkedHashMap<Object, List>();
         
-        toClient = fromMapper.stream()
-        		.reduce(toClient ,(o1,o2)->
+        toDevice = fromMapper.stream()
+        		.reduce(toDevice ,(o1,o2)->
         		{o1.putAll(o2);
                  return o1;});
         
-        toClient = toClient.entrySet().stream().parallel().sorted(Map.Entry.comparingByValue((v1,v2)->v2.compareTo(v1)))
+        toDevice = toDevice.entrySet().stream().parallel().sorted((e1, e2) -> Integer.valueOf(String.valueOf(e2.getValue().get(3))).compareTo(Integer.valueOf(String.valueOf(e1.getValue().get(3)))))
         		.limit(topK)
         		.collect(Collectors.toMap(
 	                Map.Entry::getKey, 
 	                Map.Entry::getValue, 
 	                (x,y)-> {throw new AssertionError();}, LinkedHashMap::new));
         
-//       for (Entry<Object, Long> entry : toClient.entrySet()) {
+        
+//        toDevice = toDevice.entrySet().stream().parallel().sorted(Map.Entry.comparingByValue((v1, v2)->v2.compareTo(v1)))
+//        		.limit(topK)
+//        		.collect(Collectors.toMap(
+//	                Map.Entry::getKey, 
+//	                Map.Entry::getValue, 
+//	                (x,y)-> {throw new AssertionError();}, LinkedHashMap::new));
+        
+//       for (Entry<Object, Long> entry : toDevice.entrySet()) {
 //    	   System.out.println("POI: "+entry.getKey()+"\tCount: "+entry.getValue());
 //       }
         
-        return toClient;
+        for (Object key : toDevice.keySet()) {
+        	System.out.println(key+" value: " + toDevice.get(key).get(3));
+        }
+        
+        return toDevice;
     }
 
 	@Override
-	public void sendResults(Map<Object, POI_Photos> toClient) {
+	public void sendResults(Map<Object, List> map) {
 		Socket toClientSocket = null;
 		ObjectInputStream in = null;
 		ObjectOutputStream out = null;
@@ -171,7 +185,7 @@ public class Reducer implements ReduceWorker {
 			out.writeObject(">Successfully connected to "+toClientSocket.getInetAddress()+" on local port: "+toClientSocket.getLocalPort());
 			out.flush();
 			
-			out.writeObject(toClient);
+			out.writeObject(map);
 			out.flush();
 		}
 		catch (IOException e) {
