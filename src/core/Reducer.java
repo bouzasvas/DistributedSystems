@@ -158,10 +158,7 @@ public class Reducer implements ReduceWorker {
 		try {
 			toClientSocket = new Socket(InetAddress.getByName(clientAddress), clientPort);
 			out = new ObjectOutputStream(toClientSocket.getOutputStream());
-			in = new ObjectInputStream(toClientSocket.getInputStream());
-			
-			out.writeObject(">Successfully connected to "+toClientSocket.getInetAddress()+" on local port: "+toClientSocket.getLocalPort());
-			out.flush();
+			in = new ObjectInputStream(toClientSocket.getInputStream());			
 			
 			out.writeObject(map);
 			out.flush();

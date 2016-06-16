@@ -5,10 +5,9 @@ import java.util.Scanner;
 import java.net.*;
 import java.io.*;
 
-public class Master {
+public class InitApp {
 	static Mapper mapper;
 	static Reducer reducer;
-	static String reducerAddress = "localhost";
 
 	static List<String> addr_ports = new ArrayList<String>();
 	
@@ -36,9 +35,8 @@ public class Master {
 	
 	public static void welcomeMsg() { //Prints welcome messages program starts
 		System.out.println("Select Role:");
-		System.out.println("1) Client");
-		System.out.println("2) Mapper");
-		System.out.println("3) Reducer");
+		System.out.println("1) Mapper");
+		System.out.println("2) Reducer");
 		System.out.print(">");
 	}
 	
@@ -49,14 +47,7 @@ public class Master {
 		welcomeMsg();
 		function = input.nextInt();
 
-		if (function == 1) {		
-			Client client = new Client(addr_ports);
-			client.requestAndConnect();
-			client.initServer();
-			client.printResults();
-		}
-		
-		else if (function == 2) {
+		if (function == 1) {
 			System.out.println("Select mapper from 1 to 3");
 			System.out.print(">");
 			mapperID = input.nextInt();
@@ -65,12 +56,11 @@ public class Master {
 			}
 			int port = 2*mapperID-1;
 			
-			//mapper = new Mapper(Integer.parseInt(addr_ports.get(port)), "172.16.1.30", Integer.parseInt(addr_ports.get(7)));
 			mapper = new Mapper(Integer.parseInt(addr_ports.get(port)), addr_ports.get(6), Integer.parseInt(addr_ports.get(7)));		
 			mapper.initialize();
 		} 
 		
-		else if (function == 3) {
+		else if (function == 2) {
 			Reducer reducer = new Reducer(Integer.parseInt(addr_ports.get(7)), addr_ports.get(8), Integer.parseInt(addr_ports.get(9)));
 			reducer.initialize();
 		}

@@ -81,10 +81,6 @@ public class Mapper implements MapWorker {
 			while (true) {
 				client = mapper.accept();
 				
-				ObjectOutputStream ack = new ObjectOutputStream(client.getOutputStream());
-				ack.writeObject("Succesfully connected to "+client.getInetAddress()+
-						" at port "+client.getLocalPort());
-				
 				waitForTasksThread();
 			}
 			
