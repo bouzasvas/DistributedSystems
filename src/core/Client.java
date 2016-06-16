@@ -15,7 +15,7 @@ public class Client {
 	private ServerSocket fromReducer = null;
 	private Socket reducer = null;
 	
-	private Map<Object, Long> fromClient = null;
+	private Map<Object, List> fromClient = null;
 	private List<String> addr_ports = null;
 	
 	private double minX, maxX, minY, maxY;
@@ -45,7 +45,7 @@ public class Client {
 			String msg = (String) in.readObject();
 			System.out.println(msg);
 			
-			fromClient = (Map<Object, Long>) in.readObject();
+			fromClient = (Map<Object, List>) in.readObject();
 		}
 		catch (IOException e) {
 			System.err.println("Could not initialize client server...");
@@ -71,7 +71,7 @@ public class Client {
 		System.out.println();
 		for(Object key : fromClient.keySet())
         {
-             System.out.println("POI Name: " + key + "||" + " Count of Checkins: " +fromClient.get(key));			   
+             System.out.println("POI Name: " + fromClient.get(key).get(1) + "||" + " Count of Checkins: " +fromClient.get(key).get(3));			   
         }
 	}
 	

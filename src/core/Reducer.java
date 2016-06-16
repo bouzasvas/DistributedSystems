@@ -80,12 +80,6 @@ public class Reducer implements ReduceWorker {
 					fromMapper.add(dataFromMap);
 					topK = input.readInt();
 					
-//						for(Map<Object, List> map : fromMapper) 
-//				        {
-//							for (Object key : map.keySet()) {
-//								System.out.println(key + " : " +map.get(key).get(3));
-//							}
-//				        }
 				}
 				catch (IOException | ClassNotFoundException e) {
 					e.printStackTrace();
@@ -151,23 +145,7 @@ public class Reducer implements ReduceWorker {
 	                Map.Entry::getKey, 
 	                Map.Entry::getValue, 
 	                (x,y)-> {throw new AssertionError();}, LinkedHashMap::new));
-        
-        
-//        toDevice = toDevice.entrySet().stream().parallel().sorted(Map.Entry.comparingByValue((v1, v2)->v2.compareTo(v1)))
-//        		.limit(topK)
-//        		.collect(Collectors.toMap(
-//	                Map.Entry::getKey, 
-//	                Map.Entry::getValue, 
-//	                (x,y)-> {throw new AssertionError();}, LinkedHashMap::new));
-        
-//       for (Entry<Object, Long> entry : toDevice.entrySet()) {
-//    	   System.out.println("POI: "+entry.getKey()+"\tCount: "+entry.getValue());
-//       }
-        
-        for (Object key : toDevice.keySet()) {
-        	System.out.println(key+" value: " + toDevice.get(key).get(3));
-        }
-        
+
         return toDevice;
     }
 

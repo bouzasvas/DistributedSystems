@@ -144,13 +144,6 @@ public class Mapper implements MapWorker {
 					seperateMap(cores);
 					System.out.println("\nMap Proccess is ready to begin......");
 					
-//					System.out.println("Select the top-K resutls that are going to procceed to Reducer");
-//					topK = input.nextInt();
-					
-					
-//					System.out.println("Press a key to send results to Reducer...");
-//					input.nextLine();
-					
 			        sendToReducers(map(Checkins_Area));
 			        System.out.println("\nMap Complete! The intermediate results will be sent to Reducer.....\n");
 				}
@@ -174,7 +167,6 @@ public class Mapper implements MapWorker {
 				maxY = maxY + coreLength;
 			}
 		}
-		//printCheckinsArea();
 	}
 	
 	public ListOfCheckins readFromDB(double CoreMinY, double CoreMaxY) {
@@ -238,53 +230,41 @@ public class Mapper implements MapWorker {
 	public Map<Object, List> map(List<ListOfCheckins> checkins) {
 		Map<Object, List> intermediateMap = new LinkedHashMap<Object, List>();
 		List<Map.Entry<Object, List<Checkin>>> intermediateList = new ArrayList<Map.Entry<Object, List<Checkin>>>();
-		//List<Map.Entry<Object, List<Checkin>>> intermediatePhotoList = new ArrayList<Map.Entry<Object, List<Checkin>>>();
 		
-//		intermediateList = checkins.stream().parallel().map(p->p.getCheckinsList().stream()
-//				.collect(Collectors.groupingBy(o-> o.getPOI_name(), Collectors.counting())))
-//				.flatMap (map -> map.entrySet().stream()).collect(Collectors.toList());
 		intermediateList = checkins.stream().flatMap(s->s.getCheckinsList().stream())
 				.collect(Collectors.groupingBy(Checkin::getPOI)).entrySet()
 				.stream().collect(Collectors.toList());
 				
-				
-		
-		//intermediateList = intermediateList.stream().parallel().sorted(Map.Entry.comparingByValue((v1,v2)->v2.compareTo(v1))).collect(Collectors.toList());
-		
+						
 		intermediateList = intermediateList.stream().parallel()
 				.sorted((e1, e2) -> Integer.compare(e2.getValue().size(), e1.getValue().size()))
 				.collect(Collectors.toList());
 				 
+		//check if user input is greater than List Size
+		if (topK > intermediateList.size()) {
+			topK = intermediateList.size();
+		}
 		
-		if (intermediateList.size()!=0) {
+		if (topK != 0) {
 	        for(int top = 0; top < this.topK; top++){
-	        	//Map.Entry<Object, Long> item1 = intermediateList.get(top);
 	        	Map.Entry<Object, List<Checkin>> item = intermediateList.get(top);
 	        	List<String> photo_list = item.getValue().stream().map(h->h.getPhotoURL())
 	        			.collect(Collectors.toList());
 	        	
-	        	List<Object> dataAboutCheckin = new ArrayList<Object>();
-	        	dataAboutCheckin.add(item.getKey());
-	        	dataAboutCheckin.add(item.getValue().get(0).getPOI_name());
-	        	dataAboutCheckin.add(photo_list);
-	        	dataAboutCheckin.add(photo_list.size());
-	        	dataAboutCheckin.add(item.getValue().get(0).getLongitude());
-	        	dataAboutCheckin.add(item.getValue().get(0).getLatitude());
+	        	//Data for each Checkin based on intermediateList
+	        	List<Object> checkinDetails = new ArrayList<Object>();
+	        	checkinDetails.add(item.getValue().get(0).getPOI());
+	        	checkinDetails.add(item.getValue().get(0).getPOI_name());
+	        	checkinDetails.add(photo_list);
+	        	checkinDetails.add(photo_list.size());
+	        	checkinDetails.add(item.getValue().get(0).getLongitude());
+	        	checkinDetails.add(item.getValue().get(0).getLatitude());
 	        	
-	        	//POI_Photos tmpEntry = new POI_Photos(item.getKey(), item.getValue().get(0).getPOI_name(), photo_list, item.getValue().get(0).getLongitude(), item.getValue().get(0).getLatitude());
-	        	intermediateMap.put(item.getKey(), dataAboutCheckin);
+	        	//Put every checkin with its details into intermediaMap
+	        	intermediateMap.put(item.getKey(), checkinDetails);
 	        }
 		}
         
-//        for (Entry<Object, POI_Photos> entry : intermediateMap.entrySet()) {
-//     	   System.out.println("POI: "+entry.getValue().getPOI_Name()+"\tCount: "+entry.getValue().getCount());
-//        }
-		
-//		List<Entry<Object, POI_Photos>> tmpList = intermediateMap.entrySet().stream().parallel()
-//			.sorted((e1, e2) -> Integer.compare(e2.getValue().getCount(), e1.getValue().getCount())).collect(Collectors.toList());
-//		
-//		intermediateMap = tmpList.stream()
-//				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 		return intermediateMap;
     }
 
